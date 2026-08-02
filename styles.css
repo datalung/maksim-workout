@@ -1,12 +1,4 @@
-/* Maksim — Swiss/International style. Inter, hard grid, bold color. */
-
-@font-face {
-  font-family: InterVariable;
-  src: url("fonts/InterVariable.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
+/* Maksim — Swiss/International style. Helvetica, hard grid, bold color. */
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -21,8 +13,7 @@ body {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  font-family: InterVariable, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-optical-sizing: auto;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: #0a0a0a;
   color: #0a0a0a;
   -webkit-font-smoothing: antialiased;
@@ -177,6 +168,9 @@ body {
 
 /* Rest countdown: translucent digits — solid means work, faded means rest. */
 .digits.resting { opacity: 0.35; }
+
+/* Rep counts in the timer slot: same treatment, sized to fit the wider string. */
+.digits.reps { font-size: clamp(56px, 20vw, 110px); }
 
 .hint {
   font-size: 12px;

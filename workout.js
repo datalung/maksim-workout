@@ -56,6 +56,7 @@ const EXERCISES = [
   {
     block: 'legs',
     name: 'Bulgarian split squats',
+    reps: '2 × 15',
     scheme: '2 × 15 per side',
     restBefore: 45,
     description: 'Back foot up on the couch behind you, front leg does the work. Lower until the front thigh is parallel to the floor, torso upright, then drive up through the front heel. All reps one side, then switch.',
@@ -64,6 +65,7 @@ const EXERCISES = [
   {
     block: 'legs',
     name: 'Single-leg hip thrusts',
+    reps: '2 × 15',
     scheme: '2 × 15 per side',
     restBefore: 45,
     description: 'On your back, knees bent. Lift one foot and extend that leg. Drive through the planted heel until shoulders–hips–knee form a line. Squeeze at the top, lower with control.',
@@ -72,6 +74,7 @@ const EXERCISES = [
   {
     block: 'legs',
     name: 'Single-leg Romanian deadlifts',
+    reps: '2 × 10',
     scheme: '2 × 10 per side',
     restBefore: 45,
     description: 'Stand on one leg, soft knee, kettlebell in the opposite hand. Hinge at the hip — push the hips back, free leg extends behind you — until the standing hamstring stretches. Back flat. Squeeze the glute to stand up.',
@@ -80,6 +83,7 @@ const EXERCISES = [
   {
     block: 'legs',
     name: 'Side-lying leg raises',
+    reps: '1 × 20',
     scheme: '20 per side · band at ankles',
     restBefore: 30,
     description: 'Band around both ankles. Lie on your side, body straight, legs stacked. Lift the top leg straight up against the band, toes pointing forward, lower with control.',
@@ -88,6 +92,7 @@ const EXERCISES = [
   {
     block: 'legs',
     name: 'Squats',
+    reps: '1 × 20',
     scheme: '1 × 20',
     restBefore: 30,
     description: 'Feet shoulder-width, toes slightly out. Sit back and down, heels planted, chest up, thighs to parallel. Drive up through the heels.',
@@ -108,6 +113,7 @@ const EXERCISES = [
   {
     block: 'core',
     name: 'Jackknives with band',
+    reps: '2 × 15',
     scheme: '2 × 15',
     restBefore: 30,
     description: 'Flat on your back, legs straight, arms overhead holding the band spread under tension. Fold in half — straight legs and torso rise to meet — then lower with control. Keep band tension throughout.',
@@ -116,6 +122,7 @@ const EXERCISES = [
   {
     block: 'core',
     name: 'Russian twists',
+    reps: '1 × 20',
     scheme: '1 × 20 · 4 kg kettlebell',
     restBefore: 30,
     description: 'Seated, knees bent, feet light or lifted, torso leaned back 45°. Kettlebell at your chest — rotate it to one hip, then all the way to the other. Twist from the waist, not the arms.',
@@ -124,6 +131,7 @@ const EXERCISES = [
   {
     block: 'upper',
     name: 'Knee pushups on fists',
+    reps: '2 × 15',
     scheme: '2 × 15',
     restBefore: 45,
     description: 'Fists on the floor shoulder-width, knuckles down, wrists straight. Body in one line head to knees. Chest to just above the floor, elbows at 45°, press back up.',
@@ -132,6 +140,7 @@ const EXERCISES = [
   {
     block: 'upper',
     name: 'Seated band rows',
+    reps: '2 × 15',
     scheme: '2 × 15',
     restBefore: 30,
     description: 'Sit with legs extended, band looped around your feet, one end per hand. Sit tall and pull to the lower ribs, elbows driving back, shoulder blades squeezing together. Release with control.',
@@ -149,6 +158,7 @@ const EXERCISES = [
   {
     block: 'upper',
     name: 'Prone arm circles',
+    reps: '1 × 15',
     scheme: '1 × 15',
     restBefore: 30,
     description: 'Face down, arms straight ahead, thumbs up, chest slightly lifted. Sweep both arms in a wide symmetrical arc from overhead down to your hips and back — a slow breaststroke, arms never touching the floor.',

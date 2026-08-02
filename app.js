@@ -340,12 +340,16 @@
       else startWaiting();
     }
 
-    // Rep-based work: no clock — do the reps, tap anywhere to move on.
+    // Rep-based work: no clock — the reps take the timer slot instead.
     function startWaiting() {
       phase = 'waiting';
       $label.textContent = 'Your pace';
-      $digits.textContent = '';
-      $digits.style.display = 'none';
+      if (ex.reps) {
+        $digits.textContent = ex.reps;
+        $digits.classList.add('reps');
+      } else {
+        $digits.style.display = 'none';
+      }
       setHint('Tap anywhere when done', true);
     }
 
