@@ -259,7 +259,7 @@
 
     document.getElementById('quit').addEventListener('click', (e) => {
       e.stopPropagation();
-      if (confirm('End the workout?')) renderHome();
+      showQuitModal();
     });
     document.getElementById('next').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -411,13 +411,72 @@
         loadSegment(true);
       } else if (phase === 'work') {
         if (!activeTimer) return;
-        if (activeTimer.isRunning()) cuePause();
-        else cueStart();
-        activeTimer.toggle();
+        if (activeTimer.isRunning()) {
+          cuePause();
+          activeTimer.pause();
+          showPauseOverlay();
+        } else {
+          cueStart();
+          activeTimer.start();
+        }
       } else if (phase === 'waiting') {
         goNext();
       }
     };
+  }
+
+  // ---------- overlays ----------
+
+  function addOverlay(className, html) {
+    const ov = document.createElement('div');
+    ov.className = `overlay ${className}`;
+    ov.innerHTML = html;
+    $app.querySelector('.screen').appendChild(ov);
+    return ov;
+  }
+
+  // Bold full-screen pause state: the exercise colors, inverted.
+  function showPauseOverlay() {
+    const ex = EXERCISES[state.idx];
+    const block = BLOCKS[ex.block];
+    const remaining = document.getElementById('digits')?.textContent || '';
+    const ov = addOverlay('pause-overlay', `
+      <header class="bar">
+        <span class="eyebrow">${esc(block.name)}</span>
+        <span class="spacer"></span>
+        <span class="progress">${pad(state.idx + 1)}/${pad(TOTAL)}</span>
+      </header>
+      <h2 class="overlay-mega">Paused</h2>
+      <div class="digits">${remaining}</div>
+      <div class="push"></div>
+      <div class="hint pulse">Tap to resume</div>`);
+    ov.addEventListener('click', (e) => {
+      e.stopPropagation();
+      ensureAudio();
+      ov.remove();
+      cueStart();
+      if (activeTimer) activeTimer.start();
+    });
+  }
+
+  function showQuitModal() {
+    const wasRunning = activeTimer && activeTimer.isRunning();
+    if (wasRunning) activeTimer.pause();
+    const ov = addOverlay('quit-modal', `
+      <header class="bar"><span class="eyebrow">Maksim</span></header>
+      <h2 class="overlay-mega">End the<br>workout?</h2>
+      <div class="push"></div>
+      <button class="action danger" id="m-end">End workout</button>
+      <button class="action light" id="m-stay">Keep going</button>`);
+    ov.addEventListener('click', (e) => e.stopPropagation());
+    ov.querySelector('#m-end').addEventListener('click', () => {
+      cuePage();
+      renderHome();
+    });
+    ov.querySelector('#m-stay').addEventListener('click', () => {
+      ov.remove();
+      if (wasRunning && activeTimer) activeTimer.start();
+    });
   }
 
   // Every page change gets audio feedback; pass alreadyCued when the

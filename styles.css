@@ -309,6 +309,52 @@ body {
   line-height: 1.7;
 }
 
+/* ---------- overlays ---------- */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 560px;
+  height: var(--vh, 100%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px
+           max(env(safe-area-inset-bottom, 0px), 14px);
+  cursor: pointer;
+}
+
+/* Pause: the screen's colors, inverted. */
+.overlay.pause-overlay {
+  background: var(--fg, #0a0a0a);
+  color: var(--bg, #fff);
+}
+
+/* End-workout modal: always ink. */
+.overlay.quit-modal {
+  background: #0a0a0a;
+  color: #fff;
+  cursor: auto;
+}
+
+.overlay-mega {
+  font-size: clamp(48px, 15vw, 88px);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  margin: 26px 0 0;
+  text-wrap: balance;
+}
+
+.overlay .digits { margin-top: 18px; }
+
+.action.danger { background: #e30613; color: #fff; }
+.action.light { background: #fff; color: #0a0a0a; }
+
 /* ---------- a11y ---------- */
 
 button:focus-visible {
