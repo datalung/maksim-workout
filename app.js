@@ -191,11 +191,8 @@
     state.mode = 'home';
     setScene('#ffffff', '#0a0a0a');
 
-    const counts = {};
-    EXERCISES.forEach((e) => { counts[e.block] = (counts[e.block] || 0) + 1; });
-    const rows = Object.entries(BLOCKS).map(([key, b]) => `
-      <li><span class="chip" style="--chip:${b.color}"></span>${esc(b.name)}
-      <span class="count">${counts[key] || 0}</span></li>`).join('');
+    const rows = Object.values(BLOCKS).map((b) => `
+      <li><span class="chip" style="--chip:${b.color}"></span>${esc(b.name)}</li>`).join('');
 
     $app.innerHTML = `
       <section class="screen">
@@ -204,9 +201,8 @@
           <span class="spacer"></span>
           <span class="progress">${TOTAL} exercises</span>
         </header>
-        <h1 class="home-title">Work<br>out<span class="dot">.</span></h1>
+        <h1 class="home-title">Work<br>out</h1>
         <ul class="blocks">${rows}</ul>
-        <p class="home-meta">Band + 4 kg kettlebell &middot; sequence matters</p>
         <div class="push"></div>
         <button class="action" id="start">Start workout</button>
       </section>`;
