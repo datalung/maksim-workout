@@ -127,12 +127,11 @@
 
   // ---------- screens ----------
 
-  function setScene(bg, fg, accent) {
+  function setScene(bg, fg) {
     document.body.style.background = bg;
     document.querySelector('meta[name="theme-color"]').setAttribute('content', bg);
     $app.style.setProperty('--bg', bg);
     $app.style.setProperty('--fg', fg);
-    $app.style.setProperty('--accent', accent || fg);
   }
 
   function renderHome() {
@@ -170,7 +169,7 @@
     });
   }
 
-  function renderExercise() {
+  function renderExercise(withRest = false) {
     stopActiveTimer();
     state.mode = 'exercise';
     state.segIdx = 0;
@@ -179,7 +178,8 @@
     setScene(block.color, block.ink);
 
     const timed = !!ex.segments;
-    const timerHtml = timed ? `
+    const showBox = timed || withRest;
+    const timerHtml = showBox ? `
       <button class="timerbox" id="timerbox" aria-label="Timer: tap to start or pause">
         <div class="seg-label" id="seglabel"></div>
         <div class="digits" id="digits"></div>
@@ -211,17 +211,18 @@
       ensureAudio();
       goNext();
     });
-    if (timed) setupSegmentTimer(ex);
+    if (showBox) setupTimers(ex, timed, withRest);
   }
 
   const SWITCH_SECONDS = 5; // lead-in between sides/sets to change position
 
-  function setupSegmentTimer(ex) {
+  function setupTimers(ex, timed, withRest) {
     const $label = document.getElementById('seglabel');
     const $digits = document.getElementById('digits');
     const $hint = document.getElementById('hint');
     const $box = document.getElementById('timerbox');
     let inTransition = false;
+    let resting = false;
 
     function segLabel() {
       const seg = ex.segments[state.segIdx];
@@ -288,8 +289,43 @@
       activeTimer.start();
     }
 
+    // Rest runs inside the exercise screen: hollow digits, then the work timer.
+    function startRest() {
+      resting = true;
+      $label.textContent = 'Rest';
+      $digits.textContent = fmt(ex.restBefore);
+      $digits.classList.add('hollow');
+      $hint.textContent = 'Tap to skip';
+      $hint.classList.add('pulse');
+
+      activeTimer = makeTimer(ex.restBefore, {
+        onSecond: (s) => { $digits.textContent = fmt(s); },
+        onDone: () => {
+          activeTimer = null;
+          cueGo();
+          endRest();
+        },
+      });
+      activeTimer.start();
+    }
+
+    function endRest() {
+      resting = false;
+      $digits.classList.remove('hollow');
+      if (timed) {
+        loadSegment(true);
+      } else {
+        $box.style.display = 'none';
+      }
+    }
+
     $box.addEventListener('click', () => {
       ensureAudio();
+      if (resting) {
+        stopActiveTimer();
+        endRest();
+        return;
+      }
       if (inTransition) {
         // Skip the lead-in and go now.
         stopActiveTimer();
@@ -302,7 +338,8 @@
       activeTimer.toggle();
     });
 
-    loadSegment(true);
+    if (withRest) startRest();
+    else loadSegment(true);
   }
 
   function goNext() {
@@ -312,49 +349,7 @@
       return;
     }
     state.idx += 1;
-    const ex = EXERCISES[state.idx];
-    if (ex.restBefore > 0) renderRest(ex);
-    else renderExercise();
-  }
-
-  function renderRest(ex) {
-    state.mode = 'rest';
-    const block = BLOCKS[ex.block];
-    // Upper body's block color is near-black — swap to white for the digits.
-    const accent = block.color === '#0a0a0a' ? '#ffffff' : block.color;
-    setScene('#0a0a0a', '#ffffff', accent);
-
-    $app.innerHTML = `
-      <section class="screen rest" id="restscreen">
-        <header class="bar">
-          <span class="eyebrow">Rest</span>
-          <span class="spacer"></span>
-          <span class="progress">${pad(state.idx + 1)}/${pad(TOTAL)}</span>
-        </header>
-        <div class="rest-digits" id="digits">${fmt(ex.restBefore)}</div>
-        <div class="hint pulse">Tap to skip</div>
-        <div class="rest-next">
-          <div class="eyebrow">Next &middot; ${esc(block.name)}</div>
-          <div class="name">${esc(ex.name)}</div>
-        </div>
-      </section>`;
-
-    const $digits = document.getElementById('digits');
-    activeTimer = makeTimer(ex.restBefore, {
-      onSecond: (s) => { $digits.textContent = fmt(s); },
-      onDone: () => {
-        activeTimer = null;
-        cueGo();
-        renderExercise();
-      },
-    });
-    activeTimer.start();
-
-    document.getElementById('restscreen').addEventListener('click', () => {
-      ensureAudio();
-      stopActiveTimer();
-      renderExercise();
-    });
+    renderExercise(EXERCISES[state.idx].restBefore > 0);
   }
 
   function renderDone() {
