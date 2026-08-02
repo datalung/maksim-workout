@@ -112,6 +112,20 @@ const EXERCISES = [
   },
   {
     block: 'core',
+    name: 'Side planks',
+    scheme: '2 × 30 sec per side',
+    restBefore: 30,
+    segments: [
+      { label: 'Set 1 · left', seconds: 30 },
+      { label: 'Set 1 · right', seconds: 30 },
+      { label: 'Set 2 · left', seconds: 30 },
+      { label: 'Set 2 · right', seconds: 30 },
+    ],
+    description: 'Lie on your side, forearm under the shoulder, body in one straight line. Lift the hips and hold — no sagging, no twisting forward. This is what keeps your hips steady when climbing out of the saddle.',
+    trains: 'Obliques, lateral core, glute medius',
+  },
+  {
+    block: 'core',
     name: 'Jackknives with band',
     reps: '2 × 15',
     scheme: '2 × 15',
@@ -187,6 +201,18 @@ const EXERCISES = [
     ],
     description: 'One leg straight, the other foot against its inner thigh. Hinge forward from the hips with a long back — chest toward the toes, no rounding — and hold where the hamstring stretches.',
     trains: 'Hamstrings',
+  },
+  {
+    block: 'stretch',
+    name: 'Kneeling hip flexor stretch',
+    scheme: '45 sec per side',
+    restBefore: 10,
+    segments: [
+      { label: 'Left side', seconds: 45 },
+      { label: 'Right side', seconds: 45 },
+    ],
+    description: 'Kneel on one knee (cushion under it), other foot planted ahead. Tuck the pelvis under first, then shift gently forward until the front of the rear hip stretches. Squeeze the rear glute. Counters the hours of hip flexion on the bike.',
+    trains: 'Hip flexors, psoas',
   },
   {
     block: 'stretch',

@@ -54,11 +54,15 @@ Stand with feet shoulder-width apart, toes slightly out. Sit back and down as if
 Hold a forearm plank: elbows under shoulders, body in a straight line from head to heels, core braced. While holding, lift one leg a few centimeters off the ground, set it down, lift the other — alternating in quick succession for the full 45 seconds. Don't let the hips sag or pike up.
 *Trains: deep core, glutes, shoulder stability.*
 
-### 3.2 Jackknives with band tension — 2 sets × 15
+### 3.2 Side planks — 2 sets × 30 seconds per side *(new)*
+Lie on your side, forearm on the floor directly under the shoulder, legs stacked, body in one straight line. Lift the hips off the floor and hold — don't let them sag or twist forward. Do left and right, then repeat both sides.
+*Trains: obliques, lateral core, glute medius. Added for lateral hip stability — what keeps the pelvis steady during out-of-saddle climbing on the bike.*
+
+### 3.3 Jackknives with band tension — 2 sets × 15
 Lie flat on your back, legs straight, arms extended overhead holding the resistance band with hands spread so it stays under tension. In one motion, lift your straight legs and your torso/arms toward each other, folding at the hips like a closing pocket knife, then lower back down with control. Keep tension on the band throughout.
 *Trains: abs (full flexion), hip flexors, with shoulder tension work from the band.*
 
-### 3.3 Russian twists — 1 set × 20 with 4 kg kettlebell
+### 3.4 Russian twists — 1 set × 20 with 4 kg kettlebell
 Sit on the floor, knees bent, feet lifted or lightly touching the ground. Lean the torso back ~45°, hold the kettlebell with both hands in front of your chest. Rotate the torso to bring the kettlebell beside one hip, then rotate all the way to the other side — that's the movement; keep alternating. Rotate from the waist, not just the arms.
 *Trains: obliques, rotational core strength.*
 
@@ -95,6 +99,10 @@ Lie on your back, both legs on the floor. Loop the band around the sole of one f
 ### 5.2 Seated single-leg forward fold — 30–45 seconds per leg
 Sit on the floor with one leg extended straight, the other bent with its foot resting against the inner thigh of the straight leg. Hinge forward from the hips (chest toward the toes, back long — don't round the spine to get lower) and reach toward the foot of the straight leg. Hold where you feel the hamstring stretch.
 
-### 5.3 Downward dog — 45–60 seconds
+### 5.3 Kneeling hip flexor stretch — 45 seconds per side *(new)*
+Kneel on one knee (put a cushion under it), the other foot planted ahead in a lunge position. First tuck the pelvis under (posterior tilt), then shift gently forward until you feel the stretch in the front of the rear hip. Squeeze the glute of the kneeling-side leg to deepen it. Keep the torso upright — don't arch the lower back.
+*Trains: hip flexor / psoas length. Added for cycling: hours of riding hold the hip flexors short, and this is the direct counter-stretch.*
+
+### 5.4 Downward dog — 45–60 seconds
 From all fours, tuck the toes and lift the hips up and back so your body forms an upside-down V. Press the chest gently toward the thighs, and alternate "pedaling" the heels toward the floor one at a time. Knees can stay slightly bent — prioritize a long, straight back over straight legs.
 *Stretches hamstrings and calves together — a good match for tight calves from all that tiptoe hopping.*
