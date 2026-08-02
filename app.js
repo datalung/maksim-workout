@@ -86,6 +86,9 @@
   }
 
   // ---------- wake lock ----------
+  // Keep the screen awake the whole time the app is open. Acquired on the
+  // first touch (needs a gesture on iOS) and re-acquired whenever the app
+  // returns to the foreground.
 
   async function requestWakeLock() {
     try {
@@ -93,14 +96,12 @@
     } catch (_) { /* not critical */ }
   }
 
-  function releaseWakeLock() {
-    if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
-  }
-
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && state.mode !== 'home' && state.mode !== 'done') {
-      requestWakeLock();
-    }
+    if (document.visibilityState === 'visible') requestWakeLock();
+  });
+
+  document.addEventListener('pointerdown', () => {
+    if (!wakeLock || wakeLock.released) requestWakeLock();
   });
 
   // ---------- countdown engine ----------
@@ -168,6 +169,12 @@
   const pad = (n) => String(n).padStart(2, '0');
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
+  // Bold geometric arrow, MTA-style: straight stem, miter-joined head.
+  const arrowSvg = (back) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="3" aria-hidden="true"><path d="${back
+      ? 'M20.5 12H5M11.5 4.5 4 12l7.5 7.5'
+      : 'M3.5 12H19M12.5 4.5 20 12l-7.5 7.5'}"/></svg>`;
+
   // ---------- screens ----------
 
   function setScene(bg, fg) {
@@ -179,7 +186,6 @@
 
   function renderHome() {
     stopActiveTimer();
-    releaseWakeLock();
     state.mode = 'home';
     setScene('#ffffff', '#0a0a0a');
 
@@ -207,7 +213,6 @@
       ensureAudio();
       state.idx = 0;
       state.startedAt = Date.now();
-      requestWakeLock();
       renderExercise(5); // short ready countdown before the first exercise
     });
   }
@@ -244,9 +249,9 @@
         <div class="push"></div>
         <div class="footrow">
           ${state.idx > 0
-            ? '<button class="backbtn" id="back" aria-label="Previous exercise">&#8592;</button>'
+            ? `<button class="backbtn" id="back" aria-label="Previous exercise">${arrowSvg(true)}</button>`
             : '<span></span>'}
-          <button class="nextbtn" id="next" aria-label="Next exercise">&#8594;</button>
+          <button class="nextbtn" id="next" aria-label="Next exercise">${arrowSvg(false)}</button>
         </div>
       </section>`;
 
@@ -434,7 +439,6 @@
 
   function renderDone(alreadyCued = false) {
     stopActiveTimer();
-    releaseWakeLock();
     state.mode = 'done';
     setScene('#ffffff', '#0a0a0a');
     if (!alreadyCued) cueFinish();

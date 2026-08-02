@@ -36,7 +36,7 @@ body {
   display: flex;
   flex-direction: column;
   padding: calc(env(safe-area-inset-top, 0px) + 18px) 20px
-           calc(env(safe-area-inset-bottom, 0px) + 18px);
+           calc(env(safe-area-inset-bottom, 0px) + 12px);
   background: var(--bg, #fff);
   color: var(--fg, #0a0a0a);
 }
@@ -204,23 +204,32 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 22px;
+  margin-top: 20px;
 }
 
+/* NYC-subway-style arrows: solid circle in the ink color, arrow punched
+   out in the screen color. */
 .nextbtn, .backbtn {
-  font: inherit;
-  font-size: 36px;
-  font-weight: 800;
-  line-height: 1;
-  background: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
   border: none;
-  color: inherit;
+  padding: 0;
   cursor: pointer;
-  padding: 8px 12px;
-  margin: -8px -12px;
+  background: var(--fg, #0a0a0a);
+  color: var(--bg, #fff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
 }
 
-.nextbtn { opacity: 0.85; }
+.nextbtn svg, .backbtn svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
 .backbtn { opacity: 0.4; }
 
 .nextbtn:active, .backbtn:active { opacity: 0.25; }
