@@ -25,9 +25,13 @@
     if (audioCtx.state === 'suspended') audioCtx.resume();
   }
 
-  function beep(freq, dur, when = 0, vol = 0.4) {
-    if (!audioCtx || audioCtx.state !== 'running') return;
-    const t = audioCtx.currentTime + when;
+  // Beeps are scheduled at absolute AudioContext time — sample-accurate,
+  // immune to JS interval jitter and first-sound wake-up latency.
+  let scheduledNodes = [];
+
+  function beepAt(freq, dur, atTime, vol = 0.4, cancellable = false) {
+    if (!audioCtx) return;
+    const t = Math.max(atTime, audioCtx.currentTime + 0.005);
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = 'sine';
@@ -39,13 +43,47 @@
     osc.connect(gain).connect(audioCtx.destination);
     osc.start(t);
     osc.stop(t + dur + 0.05);
+    if (cancellable) {
+      scheduledNodes.push(osc);
+      osc.onended = () => {
+        const i = scheduledNodes.indexOf(osc);
+        if (i >= 0) scheduledNodes.splice(i, 1);
+      };
+    }
   }
 
+  function cancelScheduledBeeps() {
+    for (const osc of scheduledNodes) {
+      try { osc.onended = null; osc.stop(0); } catch (_) { /* already ended */ }
+    }
+    scheduledNodes = [];
+  }
+
+  const beep = (freq, dur, when = 0, vol = 0.4) => {
+    if (audioCtx) beepAt(freq, dur, audioCtx.currentTime + when, vol);
+  };
+
   const cueStart = () => beep(880, 0.18);
-  const cueTick = () => beep(1320, 0.08, 0, 0.3);
   const cueFinish = () => { beep(880, 0.12); beep(880, 0.12, 0.18); beep(1470, 0.4, 0.36); };
-  const cueGo = () => { beep(660, 0.12); beep(880, 0.35, 0.16); };
   const cuePage = () => { beep(988, 0.08); beep(1319, 0.12, 0.1); }; // quick rising pair on page change
+
+  // End-of-countdown cues, pre-scheduled on the audio clock (cancellable).
+  const END_CUES = {
+    start: (t) => beepAt(880, 0.18, t, 0.4, true),
+    go: (t) => { beepAt(660, 0.12, t, 0.4, true); beepAt(880, 0.35, t + 0.16, 0.4, true); },
+    finish: (t) => { beepAt(880, 0.12, t, 0.4, true); beepAt(880, 0.12, t + 0.18, 0.4, true); beepAt(1470, 0.4, t + 0.36, 0.4, true); },
+  };
+
+  // Schedule 3-2-1 ticks and the end cue for a countdown with `remaining`
+  // seconds left, exactly on the beat.
+  function scheduleCountdownBeeps(remaining, endCue) {
+    if (!audioCtx) return;
+    const end = audioCtx.currentTime + remaining;
+    for (const s of [3, 2, 1]) {
+      if (remaining > s + 0.05) beepAt(1320, 0.08, end - s, 0.3, true);
+    }
+    if (endCue && END_CUES[endCue]) END_CUES[endCue](end);
+  }
 
   // ---------- wake lock ----------
 
@@ -67,7 +105,10 @@
 
   // ---------- countdown engine ----------
 
-  function makeTimer(seconds, { onSecond, onDone, onState }) {
+  // endCue: name from END_CUES played exactly when the countdown hits zero.
+  // Ticks and end cue are pre-scheduled on the audio clock at start/resume
+  // so they land on the second, and cancelled on pause/stop.
+  function makeTimer(seconds, { onSecond, onDone, onState }, endCue = null) {
     let remaining = seconds;
     let endsAt = null;
     let interval = null;
@@ -80,16 +121,16 @@
       if (whole !== lastWhole) {
         lastWhole = whole;
         onSecond(whole);
-        if (whole >= 1 && whole <= 3) cueTick();
       }
       if (remaining <= 0) {
-        clear();
+        clear(false); // natural end: let the scheduled end cue ring out
         onDone();
       }
     }
 
-    function clear() {
+    function clear(cancelBeeps = true) {
       running = false;
+      if (cancelBeeps) cancelScheduledBeeps();
       if (interval) { clearInterval(interval); interval = null; }
     }
 
@@ -98,6 +139,7 @@
         if (running || remaining <= 0) return;
         running = true;
         endsAt = Date.now() + remaining * 1000;
+        scheduleCountdownBeeps(remaining, endCue);
         interval = setInterval(tick, 100);
         onState && onState('running');
       },
@@ -279,16 +321,14 @@
         onDone: () => {
           activeTimer = null;
           if (state.segIdx + 1 < ex.segments.length) {
-            cueFinish();
             state.segIdx += 1;
             startTransition();
           } else {
-            cueFinish(); // timer-end fanfare doubles as the page cue
-            goNext(true);
+            goNext(true); // the scheduled finish fanfare is the page cue
           }
         },
         onState,
-      });
+      }, 'finish');
       if (autoStart) activeTimer.start();
     }
 
@@ -305,11 +345,10 @@
         onSecond: (s) => { setHint(`Switch — ${s}`, true); },
         onDone: () => {
           activeTimer = null;
-          cueStart();
           loadSegment(true);
         },
         onState,
-      });
+      }, 'start');
       activeTimer.start();
     }
 
@@ -325,10 +364,9 @@
         onSecond: (s) => { $digits.textContent = fmt(s); },
         onDone: () => {
           activeTimer = null;
-          cueGo();
           endRest();
         },
-      });
+      }, 'go');
       activeTimer.start();
     }
 
@@ -378,7 +416,7 @@
   function goNext(alreadyCued = false) {
     stopActiveTimer();
     if (state.idx + 1 >= TOTAL) {
-      renderDone(); // plays its own fanfare
+      renderDone(alreadyCued);
       return;
     }
     if (!alreadyCued) cuePage();
@@ -394,12 +432,12 @@
     renderExercise(0); // straight back in, no rest replay
   }
 
-  function renderDone() {
+  function renderDone(alreadyCued = false) {
     stopActiveTimer();
     releaseWakeLock();
     state.mode = 'done';
     setScene('#ffffff', '#0a0a0a');
-    cueFinish();
+    if (!alreadyCued) cueFinish();
 
     const mins = Math.max(1, Math.round((Date.now() - state.startedAt) / 60000));
     $app.innerHTML = `
