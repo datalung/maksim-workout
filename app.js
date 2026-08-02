@@ -45,6 +45,7 @@
   const cueTick = () => beep(1320, 0.08, 0, 0.3);
   const cueFinish = () => { beep(880, 0.12); beep(880, 0.12, 0.18); beep(1470, 0.4, 0.36); };
   const cueGo = () => { beep(660, 0.12); beep(880, 0.35, 0.16); };
+  const cuePage = () => { beep(988, 0.08); beep(1319, 0.12, 0.1); }; // quick rising pair on page change
 
   // ---------- wake lock ----------
 
@@ -281,11 +282,9 @@
             cueFinish();
             state.segIdx += 1;
             startTransition();
-          } else if (state.idx + 1 >= TOTAL) {
-            goNext(); // done screen plays its own fanfare
           } else {
-            cueFinish();
-            goNext();
+            cueFinish(); // timer-end fanfare doubles as the page cue
+            goNext(true);
           }
         },
         onState,
@@ -369,18 +368,20 @@
         if (!activeTimer.isRunning()) cueStart();
         activeTimer.toggle();
       } else if (phase === 'waiting') {
-        cueStart();
         goNext();
       }
     };
   }
 
-  function goNext() {
+  // Every page change gets audio feedback; pass alreadyCued when the
+  // trigger played its own cue (e.g. the timer-end fanfare).
+  function goNext(alreadyCued = false) {
     stopActiveTimer();
     if (state.idx + 1 >= TOTAL) {
-      renderDone();
+      renderDone(); // plays its own fanfare
       return;
     }
+    if (!alreadyCued) cuePage();
     state.idx += 1;
     renderExercise(EXERCISES[state.idx].restBefore);
   }
@@ -388,6 +389,7 @@
   function goBack() {
     if (state.idx === 0) return;
     stopActiveTimer();
+    cuePage();
     state.idx -= 1;
     renderExercise(0); // straight back in, no rest replay
   }
