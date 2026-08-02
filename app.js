@@ -67,6 +67,7 @@
   const cueFinish = () => { beep(880, 0.12); beep(880, 0.12, 0.18); beep(1470, 0.4, 0.36); };
   const cuePage = () => { beep(988, 0.08); beep(1319, 0.12, 0.1); }; // quick rising pair on page change
   const cueGo = () => { beep(660, 0.12); beep(880, 0.35, 0.16); }; // rest over — go
+  const cuePause = () => beep(440, 0.1, 0, 0.2); // single soft low blip
 
   // End-of-countdown cues, pre-scheduled on the audio clock (cancellable).
   const END_CUES = {
@@ -410,7 +411,8 @@
         loadSegment(true);
       } else if (phase === 'work') {
         if (!activeTimer) return;
-        if (!activeTimer.isRunning()) cueStart();
+        if (activeTimer.isRunning()) cuePause();
+        else cueStart();
         activeTimer.toggle();
       } else if (phase === 'waiting') {
         goNext();
