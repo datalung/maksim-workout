@@ -3,16 +3,16 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
+  height: 100%;
   -webkit-text-size-adjust: 100%;
   overscroll-behavior: none;
 }
 
 body {
   margin: 0;
-  /* Fixed body kills the iOS rubber-band bounce; #app scrolls if it must. */
-  position: fixed;
-  inset: 0;
+  height: 100%;
   overflow: hidden;
+  overscroll-behavior: none;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: #0a0a0a;
   color: #0a0a0a;
@@ -23,15 +23,16 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* --vh is set from window.innerHeight by app.js — the only reliable
+   height in iOS standalone mode, where percentage chains and fixed
+   shells can pin to a stale small viewport on first load. */
 #app {
-  height: 100%;
+  height: var(--vh, 100%);
   overflow-y: auto;
   overscroll-behavior-y: none;
 }
 
 .screen {
-  /* 100% of the fixed-position container — the real visible height on
-     iOS, unlike dvh, which can overshoot inside a fixed body. */
   min-height: 100%;
   max-width: 560px;
   margin: 0 auto;

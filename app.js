@@ -468,6 +468,20 @@
     document.getElementById('home').addEventListener('click', renderHome);
   }
 
+  // ---------- viewport height (iOS standalone workaround) ----------
+  // In home-screen mode iOS may report a stale small viewport to CSS on
+  // first load; window.innerHeight + resize listeners track the truth.
+
+  function setViewportVar() {
+    document.documentElement.style.setProperty('--vh', window.innerHeight + 'px');
+  }
+  setViewportVar();
+  window.addEventListener('resize', setViewportVar);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', setViewportVar);
+  window.addEventListener('orientationchange', () => setTimeout(setViewportVar, 250));
+  setTimeout(setViewportVar, 300);  // catch the post-launch settle
+  setTimeout(setViewportVar, 1000);
+
   // ---------- boot ----------
 
   if ('serviceWorker' in navigator) {
