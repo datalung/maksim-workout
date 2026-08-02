@@ -82,22 +82,13 @@ body {
 
 /* ---------- exercise screen ---------- */
 
-.idx {
-  font-size: clamp(96px, 34vw, 170px);
-  font-weight: 900;
-  line-height: 0.82;
-  letter-spacing: -0.02em;
-  margin-top: 20px;
-  font-variant-numeric: tabular-nums;
-}
-
 .title {
-  font-size: clamp(27px, 7.6vw, 42px);
-  font-weight: 800;
-  line-height: 0.98;
-  letter-spacing: -0.015em;
+  font-size: clamp(40px, 12vw, 64px);
+  font-weight: 900;
+  line-height: 0.94;
+  letter-spacing: -0.02em;
   text-transform: uppercase;
-  margin: 14px 0 0;
+  margin: 22px 0 0;
   text-wrap: balance;
 }
 

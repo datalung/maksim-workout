@@ -193,7 +193,6 @@
           <span class="progress">${pad(state.idx + 1)}/${pad(TOTAL)}</span>
           <button class="iconbtn" id="quit" aria-label="End workout">&#10005;</button>
         </header>
-        <div class="idx">${pad(state.idx + 1)}</div>
         <h1 class="title">${esc(ex.name)}</h1>
         <div class="scheme">${esc(ex.scheme)}</div>
         ${timerHtml}
