@@ -214,16 +214,25 @@
     if (timed) setupSegmentTimer(ex);
   }
 
+  const SWITCH_SECONDS = 5; // lead-in between sides/sets to change position
+
   function setupSegmentTimer(ex) {
     const $label = document.getElementById('seglabel');
     const $digits = document.getElementById('digits');
     const $hint = document.getElementById('hint');
     const $box = document.getElementById('timerbox');
+    let inTransition = false;
 
-    function loadSegment() {
+    function segLabel() {
       const seg = ex.segments[state.segIdx];
       const multi = ex.segments.length > 1;
-      $label.textContent = seg.label || (multi ? `Part ${state.segIdx + 1}` : '');
+      return seg.label || (multi ? `Part ${state.segIdx + 1}` : '');
+    }
+
+    function loadSegment(autoStart) {
+      const seg = ex.segments[state.segIdx];
+      inTransition = false;
+      $label.textContent = segLabel();
       $digits.textContent = fmt(seg.seconds);
       $digits.classList.remove('paused');
       $hint.textContent = 'Tap to start';
@@ -233,12 +242,11 @@
         onSecond: (s) => { $digits.textContent = fmt(s); },
         onDone: () => {
           activeTimer = null;
+          cueFinish();
           if (state.segIdx + 1 < ex.segments.length) {
-            cueFinish();
             state.segIdx += 1;
-            loadSegment();
+            startTransition();
           } else {
-            cueFinish();
             $digits.textContent = fmt(0);
             $hint.textContent = 'Done — hit next';
             $hint.classList.add('pulse');
@@ -256,16 +264,45 @@
           }
         },
       });
+      if (autoStart) activeTimer.start();
+    }
+
+    // Short countdown before the next side/set so there's time to switch.
+    function startTransition() {
+      const seg = ex.segments[state.segIdx];
+      inTransition = true;
+      $label.textContent = segLabel();
+      $digits.textContent = fmt(seg.seconds);
+      $digits.classList.add('paused');
+      $hint.textContent = `Switch — ${SWITCH_SECONDS}`;
+      $hint.classList.add('pulse');
+
+      activeTimer = makeTimer(SWITCH_SECONDS, {
+        onSecond: (s) => { $hint.textContent = `Switch — ${s}`; },
+        onDone: () => {
+          activeTimer = null;
+          cueStart();
+          loadSegment(true);
+        },
+      });
+      activeTimer.start();
     }
 
     $box.addEventListener('click', () => {
       ensureAudio();
+      if (inTransition) {
+        // Skip the lead-in and go now.
+        stopActiveTimer();
+        cueStart();
+        loadSegment(true);
+        return;
+      }
       if (!activeTimer) return;
       if (!activeTimer.isRunning()) cueStart();
       activeTimer.toggle();
     });
 
-    loadSegment();
+    loadSegment(true);
   }
 
   function goNext() {

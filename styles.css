@@ -75,7 +75,7 @@ body {
   font-size: clamp(96px, 34vw, 170px);
   font-weight: 900;
   line-height: 0.82;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.02em;
   margin-top: 20px;
   font-variant-numeric: tabular-nums;
 }
@@ -148,7 +148,7 @@ body {
   font-size: clamp(80px, 27vw, 140px);
   font-weight: 900;
   line-height: 0.9;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.015em;
   font-variant-numeric: tabular-nums;
   margin-top: 4px;
 }
@@ -255,7 +255,7 @@ body {
   font-size: clamp(120px, 44vw, 220px);
   font-weight: 900;
   line-height: 0.85;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   color: var(--accent, #fff);
   margin-top: 30px;
