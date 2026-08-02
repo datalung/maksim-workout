@@ -164,17 +164,8 @@ body {
 
 .digits.paused { opacity: 0.45; }
 
-/* Rest countdown: hollow digits — solid means work, outline means rest.
-   text-fill-color keeps `color` intact so currentColor still resolves. */
-.digits.hollow {
-  -webkit-text-stroke-width: 0.03em;
-  -webkit-text-stroke-color: currentColor;
-  -webkit-text-fill-color: transparent;
-}
-
-@supports not (-webkit-text-stroke: 1px black) {
-  .digits.hollow { opacity: 0.4; }
-}
+/* Rest countdown: translucent digits — solid means work, faded means rest. */
+.digits.resting { opacity: 0.35; }
 
 .hint {
   font-size: 12px;
@@ -212,6 +203,28 @@ body {
 }
 
 .action:active { transform: scale(0.985); }
+
+.footrow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+.nextbtn {
+  font: inherit;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.85;
+  cursor: pointer;
+  padding: 8px 4px 8px 20px;
+  margin: -8px 0;
+}
+
+.nextbtn:active { opacity: 0.5; }
 
 /* ---------- home ---------- */
 

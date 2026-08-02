@@ -180,11 +180,11 @@
     const timed = !!ex.segments;
     const showBox = timed || withRest;
     const timerHtml = showBox ? `
-      <button class="timerbox" id="timerbox" aria-label="Timer: tap to start or pause">
+      <div class="timerbox" id="timerbox">
         <div class="seg-label" id="seglabel"></div>
         <div class="digits" id="digits"></div>
         <div class="hint" id="hint"></div>
-      </button>` : '';
+      </div>` : '';
 
     $app.innerHTML = `
       <section class="screen">
@@ -201,28 +201,44 @@
         <p class="desc">${esc(ex.description)}</p>
         <p class="trains">${esc(ex.trains)}</p>
         <div class="push"></div>
-        <button class="action" id="next">${state.idx + 1 < TOTAL ? 'Next' : 'Finish'}</button>
+        <div class="footrow">
+          <button class="nextbtn" id="next" aria-label="Next exercise">&#8594;</button>
+        </div>
       </section>`;
 
-    document.getElementById('quit').addEventListener('click', () => {
+    document.getElementById('quit').addEventListener('click', (e) => {
+      e.stopPropagation();
       if (confirm('End the workout?')) renderHome();
     });
-    document.getElementById('next').addEventListener('click', () => {
+    document.getElementById('next').addEventListener('click', (e) => {
+      e.stopPropagation();
       ensureAudio();
       goNext();
     });
-    if (showBox) setupTimers(ex, timed, withRest);
+
+    // Whole screen is the tap surface; the hint line says what a tap does.
+    const onTap = showBox ? setupTimers(ex, timed, withRest) : () => goNext();
+    $app.querySelector('.screen').addEventListener('click', () => {
+      ensureAudio();
+      onTap();
+    });
   }
 
   const SWITCH_SECONDS = 5; // lead-in between sides/sets to change position
 
+  // Runs one exercise screen: optional rest, then timed segments (auto-
+  // advancing to the next exercise) or a wait for rep work. Returns the
+  // tap handler for the screen.
   function setupTimers(ex, timed, withRest) {
     const $label = document.getElementById('seglabel');
     const $digits = document.getElementById('digits');
     const $hint = document.getElementById('hint');
-    const $box = document.getElementById('timerbox');
-    let inTransition = false;
-    let resting = false;
+    let phase = 'idle'; // rest | transition | work | waiting
+
+    function setHint(text, pulse) {
+      $hint.textContent = text;
+      $hint.classList.toggle('pulse', !!pulse);
+    }
 
     function segLabel() {
       const seg = ex.segments[state.segIdx];
@@ -230,40 +246,40 @@
       return seg.label || (multi ? `Part ${state.segIdx + 1}` : '');
     }
 
+    const onState = (s) => {
+      if (s === 'running') {
+        $digits.classList.remove('paused');
+        if (phase === 'work') setHint('Tap to pause', false);
+      } else {
+        $digits.classList.add('paused');
+        setHint('Paused — tap to resume', true);
+      }
+    };
+
     function loadSegment(autoStart) {
       const seg = ex.segments[state.segIdx];
-      inTransition = false;
+      phase = 'work';
       $label.textContent = segLabel();
       $digits.textContent = fmt(seg.seconds);
       $digits.classList.remove('paused');
-      $hint.textContent = 'Tap to start';
-      $hint.classList.add('pulse');
+      setHint('Tap to pause', false);
 
       activeTimer = makeTimer(seg.seconds, {
         onSecond: (s) => { $digits.textContent = fmt(s); },
         onDone: () => {
           activeTimer = null;
-          cueFinish();
           if (state.segIdx + 1 < ex.segments.length) {
+            cueFinish();
             state.segIdx += 1;
             startTransition();
+          } else if (state.idx + 1 >= TOTAL) {
+            goNext(); // done screen plays its own fanfare
           } else {
-            $digits.textContent = fmt(0);
-            $hint.textContent = 'Done — hit next';
-            $hint.classList.add('pulse');
+            cueFinish();
+            goNext();
           }
         },
-        onState: (s) => {
-          if (s === 'running') {
-            $digits.classList.remove('paused');
-            $hint.textContent = 'Tap to pause';
-            $hint.classList.remove('pulse');
-          } else {
-            $digits.classList.add('paused');
-            $hint.textContent = 'Paused — tap to resume';
-            $hint.classList.add('pulse');
-          }
-        },
+        onState,
       });
       if (autoStart) activeTimer.start();
     }
@@ -271,32 +287,31 @@
     // Short countdown before the next side/set so there's time to switch.
     function startTransition() {
       const seg = ex.segments[state.segIdx];
-      inTransition = true;
+      phase = 'transition';
       $label.textContent = segLabel();
       $digits.textContent = fmt(seg.seconds);
       $digits.classList.add('paused');
-      $hint.textContent = `Switch — ${SWITCH_SECONDS}`;
-      $hint.classList.add('pulse');
+      setHint(`Switch — ${SWITCH_SECONDS}`, true);
 
       activeTimer = makeTimer(SWITCH_SECONDS, {
-        onSecond: (s) => { $hint.textContent = `Switch — ${s}`; },
+        onSecond: (s) => { setHint(`Switch — ${s}`, true); },
         onDone: () => {
           activeTimer = null;
           cueStart();
           loadSegment(true);
         },
+        onState,
       });
       activeTimer.start();
     }
 
-    // Rest runs inside the exercise screen: hollow digits, then the work timer.
+    // Rest runs inside the exercise screen: faded digits, then the work.
     function startRest() {
-      resting = true;
+      phase = 'rest';
       $label.textContent = 'Rest';
       $digits.textContent = fmt(ex.restBefore);
-      $digits.classList.add('hollow');
-      $hint.textContent = 'Tap to skip';
-      $hint.classList.add('pulse');
+      $digits.classList.add('resting');
+      setHint('Tap to skip', true);
 
       activeTimer = makeTimer(ex.restBefore, {
         onSecond: (s) => { $digits.textContent = fmt(s); },
@@ -310,36 +325,41 @@
     }
 
     function endRest() {
-      resting = false;
-      $digits.classList.remove('hollow');
-      if (timed) {
-        loadSegment(true);
-      } else {
-        $box.style.display = 'none';
-      }
+      $digits.classList.remove('resting');
+      if (timed) loadSegment(true);
+      else startWaiting();
     }
 
-    $box.addEventListener('click', () => {
-      ensureAudio();
-      if (resting) {
+    // Rep-based work: no clock — do the reps, tap anywhere to move on.
+    function startWaiting() {
+      phase = 'waiting';
+      $label.textContent = 'Your pace';
+      $digits.textContent = '';
+      $digits.style.display = 'none';
+      setHint('Tap anywhere when done', true);
+    }
+
+    if (withRest) startRest();
+    else if (timed) loadSegment(true);
+    else startWaiting();
+
+    return function onTap() {
+      if (phase === 'rest') {
         stopActiveTimer();
         endRest();
-        return;
-      }
-      if (inTransition) {
-        // Skip the lead-in and go now.
+      } else if (phase === 'transition') {
         stopActiveTimer();
         cueStart();
         loadSegment(true);
-        return;
+      } else if (phase === 'work') {
+        if (!activeTimer) return;
+        if (!activeTimer.isRunning()) cueStart();
+        activeTimer.toggle();
+      } else if (phase === 'waiting') {
+        cueStart();
+        goNext();
       }
-      if (!activeTimer) return;
-      if (!activeTimer.isRunning()) cueStart();
-      activeTimer.toggle();
-    });
-
-    if (withRest) startRest();
-    else loadSegment(true);
+    };
   }
 
   function goNext() {
