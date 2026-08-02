@@ -165,11 +165,11 @@
       state.idx = 0;
       state.startedAt = Date.now();
       requestWakeLock();
-      renderExercise();
+      renderExercise(5); // short ready countdown before the first exercise
     });
   }
 
-  function renderExercise(withRest = false) {
+  function renderExercise(restSeconds = 0) {
     stopActiveTimer();
     state.mode = 'exercise';
     state.segIdx = 0;
@@ -178,13 +178,12 @@
     setScene(block.color, block.ink);
 
     const timed = !!ex.segments;
-    const showBox = timed || withRest;
-    const timerHtml = showBox ? `
+    const timerHtml = `
       <div class="timerbox" id="timerbox">
         <div class="seg-label" id="seglabel"></div>
         <div class="digits" id="digits"></div>
         <div class="hint" id="hint"></div>
-      </div>` : '';
+      </div>`;
 
     $app.innerHTML = `
       <section class="screen">
@@ -202,6 +201,9 @@
         <p class="trains">${esc(ex.trains)}</p>
         <div class="push"></div>
         <div class="footrow">
+          ${state.idx > 0
+            ? '<button class="backbtn" id="back" aria-label="Previous exercise">&#8592;</button>'
+            : '<span></span>'}
           <button class="nextbtn" id="next" aria-label="Next exercise">&#8594;</button>
         </div>
       </section>`;
@@ -215,9 +217,17 @@
       ensureAudio();
       goNext();
     });
+    const $back = document.getElementById('back');
+    if ($back) {
+      $back.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ensureAudio();
+        goBack();
+      });
+    }
 
     // Whole screen is the tap surface; the hint line says what a tap does.
-    const onTap = showBox ? setupTimers(ex, timed, withRest) : () => goNext();
+    const onTap = setupTimers(ex, timed, restSeconds);
     $app.querySelector('.screen').addEventListener('click', () => {
       ensureAudio();
       onTap();
@@ -229,7 +239,7 @@
   // Runs one exercise screen: optional rest, then timed segments (auto-
   // advancing to the next exercise) or a wait for rep work. Returns the
   // tap handler for the screen.
-  function setupTimers(ex, timed, withRest) {
+  function setupTimers(ex, timed, restSeconds) {
     const $label = document.getElementById('seglabel');
     const $digits = document.getElementById('digits');
     const $hint = document.getElementById('hint');
@@ -308,12 +318,12 @@
     // Rest runs inside the exercise screen: faded digits, then the work.
     function startRest() {
       phase = 'rest';
-      $label.textContent = 'Rest';
-      $digits.textContent = fmt(ex.restBefore);
+      $label.textContent = state.idx === 0 ? 'Ready' : 'Rest';
+      $digits.textContent = fmt(restSeconds);
       $digits.classList.add('resting');
       setHint('Tap to skip', true);
 
-      activeTimer = makeTimer(ex.restBefore, {
+      activeTimer = makeTimer(restSeconds, {
         onSecond: (s) => { $digits.textContent = fmt(s); },
         onDone: () => {
           activeTimer = null;
@@ -339,7 +349,7 @@
       setHint('Tap anywhere when done', true);
     }
 
-    if (withRest) startRest();
+    if (restSeconds > 0) startRest();
     else if (timed) loadSegment(true);
     else startWaiting();
 
@@ -369,7 +379,14 @@
       return;
     }
     state.idx += 1;
-    renderExercise(EXERCISES[state.idx].restBefore > 0);
+    renderExercise(EXERCISES[state.idx].restBefore);
+  }
+
+  function goBack() {
+    if (state.idx === 0) return;
+    stopActiveTimer();
+    state.idx -= 1;
+    renderExercise(0); // straight back in, no rest replay
   }
 
   function renderDone() {
