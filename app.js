@@ -66,6 +66,7 @@
   const cueStart = () => beep(880, 0.18);
   const cueFinish = () => { beep(880, 0.12); beep(880, 0.12, 0.18); beep(1470, 0.4, 0.36); };
   const cuePage = () => { beep(988, 0.08); beep(1319, 0.12, 0.1); }; // quick rising pair on page change
+  const cueGo = () => { beep(660, 0.12); beep(880, 0.35, 0.16); }; // rest over — go
 
   // End-of-countdown cues, pre-scheduled on the audio clock (cancellable).
   const END_CUES = {
@@ -401,6 +402,7 @@
     return function onTap() {
       if (phase === 'rest') {
         stopActiveTimer();
+        cueGo();
         endRest();
       } else if (phase === 'transition') {
         stopActiveTimer();
