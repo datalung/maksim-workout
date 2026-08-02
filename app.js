@@ -510,7 +510,7 @@
           <span class="spacer"></span>
           <span class="progress">${pad(TOTAL)}/${pad(TOTAL)}</span>
         </header>
-        <h1 class="done-title">Done<span style="color:#e30613">.</span></h1>
+        <h1 class="done-title">Done</h1>
         <div class="done-stats">
           ${TOTAL} exercises<br>
           ${mins} min<br>
