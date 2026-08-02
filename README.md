@@ -21,4 +21,4 @@ Push to `main` — Vercel deploys the repo as a static site (no configuration ne
 
 Open the deployed URL in Safari → Share → **Add to Home Screen**. It launches fullscreen as a standalone app.
 
-Note: iOS plays the audio cues through the media channel — if the ring/silent switch is on silent, you'll still get them, but check your volume.
+Note: on iOS the audio cues respect the ring/silent switch — if the beeps are missing, take the phone off silent and check the volume.
