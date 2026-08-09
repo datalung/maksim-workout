@@ -307,6 +307,7 @@ body {
   letter-spacing: -0.045em;
   text-transform: uppercase;
   margin: 26px 0 0;
+  overflow-wrap: anywhere; /* long single-word names (e.g. Recovery) break mid-word */
 }
 
 .blocks {
