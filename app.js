@@ -22,7 +22,9 @@
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     if (!audioCtx) audioCtx = new AC();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    // iOS parks the context in 'interrupted' (not 'suspended') after a
+    // lock/unlock — resume from any non-running state or sounds stay dead.
+    if (audioCtx.state !== 'running') audioCtx.resume();
   }
 
   // Beeps are scheduled at absolute AudioContext time — sample-accurate,
@@ -87,19 +89,76 @@
     if (endCue && END_CUES[endCue]) END_CUES[endCue](end);
   }
 
-  // ---------- wake lock ----------
-  // Keep the screen awake the whole time the app is open. Acquired on the
-  // first touch (needs a gesture on iOS) and re-acquired whenever the app
-  // returns to the foreground.
+  // ---------- keep awake ----------
+  // Two mechanisms, belt and braces. The Screen Wake Lock API is acquired
+  // on first touch, re-acquired on foreground and whenever the system
+  // releases it — but iOS standalone PWAs have a history of granting the
+  // lock without honoring it. So during a workout we also play an
+  // invisible looping micro-video (no audio track, data in keepawake.js),
+  // which is what reliably pins the screen on iOS (the NoSleep.js trick).
+
+  let keepAwakeVideo = null;
 
   async function requestWakeLock() {
     try {
-      if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+      if ('wakeLock' in navigator) {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => {
+          // The system can drop the lock on its own (lock screen, tab
+          // switch); take it back as soon as we're visible again.
+          if (document.visibilityState === 'visible') requestWakeLock();
+        });
+      }
     } catch (_) { /* not critical */ }
   }
 
+  function ensureKeepAwakeVideo() {
+    if (keepAwakeVideo) return keepAwakeVideo;
+    const v = document.createElement('video');
+    v.setAttribute('title', 'Keep awake');
+    v.setAttribute('playsinline', '');
+    v.muted = true;
+    v.style.cssText =
+      'position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:0.01;pointer-events:none;';
+    for (const [type, src] of [['webm', KEEPAWAKE_WEBM], ['mp4', KEEPAWAKE_MP4]]) {
+      const s = document.createElement('source');
+      s.src = src;
+      s.type = `video/${type}`;
+      v.appendChild(s);
+    }
+    v.setAttribute('loop', '');
+    // Belt and braces: also re-seek near the start so playback never
+    // reaches the end (looping short data-URI videos is flaky on iOS).
+    v.addEventListener('timeupdate', () => {
+      if (v.currentTime > 0.5) v.currentTime = Math.random() * 0.4;
+    });
+    document.body.appendChild(v);
+    keepAwakeVideo = v;
+    return v;
+  }
+
+  // Call from a user gesture (video playback needs one on iOS).
+  function startKeepAwake() {
+    requestWakeLock();
+    ensureKeepAwakeVideo().play().catch(() => { /* wake lock still tries */ });
+  }
+
+  function stopKeepAwake() {
+    if (keepAwakeVideo) keepAwakeVideo.pause();
+  }
+
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') requestWakeLock();
+    if (document.visibilityState !== 'visible') return;
+    requestWakeLock();
+    // Back from the lock screen / background: iOS may report a stale
+    // viewport height and park the audio context — refresh both, and
+    // restart the keep-awake video if a workout is running.
+    setViewportVar();
+    setTimeout(setViewportVar, 250);
+    if (audioCtx && audioCtx.state !== 'running') audioCtx.resume();
+    if (keepAwakeVideo && state.mode === 'exercise') {
+      keepAwakeVideo.play().catch(() => {});
+    }
   });
 
   document.addEventListener('pointerdown', () => {
@@ -188,11 +247,14 @@
 
   function renderHome() {
     stopActiveTimer();
+    stopKeepAwake();
     state.mode = 'home';
     setScene('#ffffff', '#0a0a0a');
 
-    const rows = Object.values(BLOCKS).map((b) => `
-      <li><span class="chip" style="--chip:${b.color}"></span>${esc(b.name)}</li>`).join('');
+    const rows = Object.entries(BLOCKS).map(([key, b]) => `
+      <li><button class="blockrow" data-block="${key}">
+        <span class="chip" style="--chip:${b.color}"></span>${esc(b.name)}
+      </button></li>`).join('');
 
     $app.innerHTML = `
       <section class="screen">
@@ -209,13 +271,29 @@
 
     document.getElementById('start').addEventListener('click', () => {
       ensureAudio();
+      startKeepAwake();
       state.idx = 0;
       state.startedAt = Date.now();
-      renderExercise(5); // short ready countdown before the first exercise
+      renderExercise(5, true); // short ready countdown before the first exercise
+    });
+
+    // Each block row deep-links to the first exercise of that block.
+    $app.querySelectorAll('.blockrow').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const first = EXERCISES.findIndex((ex) => ex.block === btn.dataset.block);
+        if (first < 0) return;
+        ensureAudio();
+        startKeepAwake();
+        state.idx = first;
+        state.startedAt = Date.now();
+        renderExercise(5, true);
+      });
     });
   }
 
-  function renderExercise(restSeconds = 0) {
+  // `ready` labels the opening countdown "Ready" (fresh start from home)
+  // instead of "Rest" (mid-workout flow).
+  function renderExercise(restSeconds = 0, ready = false) {
     stopActiveTimer();
     state.mode = 'exercise';
     state.segIdx = 0;
@@ -228,7 +306,10 @@
       <div class="timerbox" id="timerbox">
         <div class="seg-label" id="seglabel"></div>
         <div class="digits" id="digits"></div>
-        <div class="hint" id="hint"></div>
+        <div class="hintrow">
+          <span class="hint" id="hint"></span>
+          <button class="skipbtn" id="skip">Skip</button>
+        </div>
       </div>`;
 
     $app.innerHTML = `
@@ -272,7 +353,7 @@
     }
 
     // Whole screen is the tap surface; the hint line says what a tap does.
-    const onTap = setupTimers(ex, timed, restSeconds);
+    const onTap = setupTimers(ex, timed, restSeconds, ready);
     $app.querySelector('.screen').addEventListener('click', () => {
       ensureAudio();
       onTap();
@@ -284,15 +365,22 @@
   // Runs one exercise screen: optional rest, then timed segments (auto-
   // advancing to the next exercise) or a wait for rep work. Returns the
   // tap handler for the screen.
-  function setupTimers(ex, timed, restSeconds) {
+  function setupTimers(ex, timed, restSeconds, ready) {
+    const $box = document.getElementById('timerbox');
     const $label = document.getElementById('seglabel');
     const $digits = document.getElementById('digits');
     const $hint = document.getElementById('hint');
+    const $skip = document.getElementById('skip');
     let phase = 'idle'; // rest | transition | work | waiting
+    let switchLeft = SWITCH_SECONDS; // last shown transition countdown value
 
     function setHint(text, pulse) {
       $hint.textContent = text;
       $hint.classList.toggle('pulse', !!pulse);
+    }
+
+    function showSkip(show) {
+      $skip.style.display = show ? '' : 'none';
     }
 
     function segLabel() {
@@ -301,13 +389,22 @@
       return seg.label || (multi ? `Part ${state.segIdx + 1}` : '');
     }
 
+    // Paused = the timer box inverts, everything else stays readable.
     const onState = (s) => {
-      if (s === 'running') {
-        $digits.classList.remove('paused');
-        if (phase === 'work') setHint('Tap to pause', false);
-      } else {
-        $digits.classList.add('paused');
+      const paused = s === 'paused';
+      $box.classList.toggle('boxpaused', paused);
+      if (paused) {
         setHint('Paused — tap to resume', true);
+        showSkip(false);
+      } else if (phase === 'rest') {
+        setHint('Tap to pause', false);
+        showSkip(true);
+      } else if (phase === 'transition') {
+        setHint(`Switch — ${switchLeft}`, true);
+        showSkip(true);
+      } else {
+        setHint('Tap to pause', false);
+        showSkip(false);
       }
     };
 
@@ -318,6 +415,7 @@
       $digits.textContent = fmt(seg.seconds);
       $digits.classList.remove('paused');
       setHint('Tap to pause', false);
+      showSkip(false);
 
       activeTimer = makeTimer(seg.seconds, {
         onSecond: (s) => { $digits.textContent = fmt(s); },
@@ -339,13 +437,18 @@
     function startTransition() {
       const seg = ex.segments[state.segIdx];
       phase = 'transition';
+      switchLeft = SWITCH_SECONDS;
       $label.textContent = segLabel();
       $digits.textContent = fmt(seg.seconds);
       $digits.classList.add('paused');
       setHint(`Switch — ${SWITCH_SECONDS}`, true);
+      showSkip(true);
 
       activeTimer = makeTimer(SWITCH_SECONDS, {
-        onSecond: (s) => { setHint(`Switch — ${s}`, true); },
+        onSecond: (s) => {
+          switchLeft = s;
+          setHint(`Switch — ${s}`, true);
+        },
         onDone: () => {
           activeTimer = null;
           loadSegment(true);
@@ -358,10 +461,11 @@
     // Rest runs inside the exercise screen: faded digits, then the work.
     function startRest() {
       phase = 'rest';
-      $label.textContent = state.idx === 0 ? 'Ready' : 'Rest';
+      $label.textContent = ready ? 'Ready' : 'Rest';
       $digits.textContent = fmt(restSeconds);
       $digits.classList.add('resting');
-      setHint('Tap to skip', true);
+      setHint('Tap to pause', false);
+      showSkip(true);
 
       activeTimer = makeTimer(restSeconds, {
         onSecond: (s) => { $digits.textContent = fmt(s); },
@@ -369,6 +473,7 @@
           activeTimer = null;
           endRest();
         },
+        onState,
       }, 'go');
       activeTimer.start();
     }
@@ -390,13 +495,13 @@
         $digits.style.display = 'none';
       }
       setHint('Tap anywhere when done', true);
+      showSkip(false);
     }
 
-    if (restSeconds > 0) startRest();
-    else if (timed) loadSegment(true);
-    else startWaiting();
-
-    return function onTap() {
+    // Skip is its own small control; a tap anywhere else pauses/resumes.
+    $skip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      ensureAudio();
       if (phase === 'rest') {
         stopActiveTimer();
         cueGo();
@@ -405,12 +510,19 @@
         stopActiveTimer();
         cueStart();
         loadSegment(true);
-      } else if (phase === 'work') {
+      }
+    });
+
+    if (restSeconds > 0) startRest();
+    else if (timed) loadSegment(true);
+    else startWaiting();
+
+    return function onTap() {
+      if (phase === 'rest' || phase === 'transition' || phase === 'work') {
         if (!activeTimer) return;
         if (activeTimer.isRunning()) {
           cuePause();
           activeTimer.pause();
-          showPauseOverlay();
         } else {
           cueStart();
           activeTimer.start();
@@ -429,30 +541,6 @@
     ov.innerHTML = html;
     $app.querySelector('.screen').appendChild(ov);
     return ov;
-  }
-
-  // Bold full-screen pause state: the exercise colors, inverted.
-  function showPauseOverlay() {
-    const ex = EXERCISES[state.idx];
-    const block = BLOCKS[ex.block];
-    const remaining = document.getElementById('digits')?.textContent || '';
-    const ov = addOverlay('pause-overlay', `
-      <header class="bar">
-        <span class="eyebrow">${esc(block.name)}</span>
-        <span class="spacer"></span>
-        <span class="progress">${pad(state.idx + 1)}/${pad(TOTAL)}</span>
-      </header>
-      <h2 class="overlay-mega">Paused</h2>
-      <div class="digits">${remaining}</div>
-      <div class="push"></div>
-      <div class="hint pulse">Tap to resume</div>`);
-    ov.addEventListener('click', (e) => {
-      e.stopPropagation();
-      ensureAudio();
-      ov.remove();
-      cueStart();
-      if (activeTimer) activeTimer.start();
-    });
   }
 
   function showQuitModal() {
@@ -498,6 +586,7 @@
 
   function renderDone(alreadyCued = false) {
     stopActiveTimer();
+    stopKeepAwake();
     state.mode = 'done';
     setScene('#ffffff', '#0a0a0a');
     if (!alreadyCued) cueFinish();

@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Maksim — Workout</title>
 <meta name="description" content="Guided full-body workout program">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#ffffff">
+<!-- First paint must match the white home screen: iOS shows a white launch
+     screen for PWAs, so any darker interstitial reads as a flash. -->
+<style>html { background: #ffffff; }</style>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,6 +21,7 @@
 <body>
 <main id="app"></main>
 <script src="workout.js"></script>
+<script src="keepawake.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

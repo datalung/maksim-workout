@@ -14,6 +14,7 @@ A static, dependency-free web app (plain HTML/CSS/JS, no framework, no build ste
 | `workout.js` | **The program as data.** `BLOCKS` (names + colors) and `EXERCISES` (the 21 exercises, in order). Edit this to change the workout. |
 | `app.js` | All behavior: screen rendering, state machine, timers, audio, wake lock, viewport workaround. |
 | `styles.css` | The design system. Swiss/International style: Helvetica Neue, hard grid, full-bleed block colors. |
+| `keepawake.js` | Data URIs for the keep-awake micro-video (from NoSleep.js, MIT). No logic. |
 | `sw.js` | Service worker: network-first fetch with cache fallback (fresh online, works offline). **Bump `CACHE` on every change you deploy.** |
 | `manifest.webmanifest` | PWA manifest (name, icons, standalone display). |
 | `icons/` | App icons: black dumbbell on yellow (`#ffc800`). Generated as flat geometry; favicon.svg matches. |
@@ -47,11 +48,13 @@ Rules:
 
 ## Behavior (app.js)
 
-- **Flow**: home → per-exercise screens → done. Every page change has an audio cue.
-- **Tap model**: the whole screen is the tap surface; the hint line always says what a tap does — skip (rest), pause/resume (running timer), continue (rep exercise). Circular subway-style arrows bottom left/right go back / forward; ✕ opens the end-workout modal.
-- **Pause** shows a full-screen overlay in the exercise's colors inverted; end-workout is an ink-black modal (red confirm), auto-pausing any running timer.
+- **Flow**: home → per-exercise screens → done. Every page change has an audio cue. Home block rows deep-link to the first exercise of that block (with the 5s ready countdown).
+- **Tap model**: the whole screen is the tap surface — a tap pauses/resumes any running countdown (rest, switch, or work) and advances rep exercises. Skipping a rest/switch countdown is the small outlined "Skip" button in the timer box (hidden during work, waiting, and pause). Circular subway-style arrows bottom left/right go back / forward; ✕ opens the end-workout modal.
+- **Pause** inverts only the timer box (full-bleed band in the exercise's colors, inverted) so the description and trains lines stay readable; end-workout is an ink-black modal (red confirm), auto-pausing any running timer.
 - **Audio**: all cues are synthesized (Web Audio, no files). Countdown ticks (3-2-1) and end cues are **pre-scheduled on the AudioContext clock** at timer start/resume so they land exactly on the second; pause/skip cancels them, natural completion lets them ring out. Cue vocabulary: tick = warning, single high beep = work starts, low-high = rest over, quick rising pair = page change, soft low blip = pause, triple beep = timer finished / workout done.
-- **Wake lock**: acquired on first touch, re-acquired on foreground; screen never sleeps while the app is open (iOS 16.4+).
+- **Keep awake**: two mechanisms. The Screen Wake Lock API is acquired on first touch and re-acquired on foreground and on system release — but iOS standalone PWAs don't always honor it. So during a workout an invisible looping micro-video with no audio track (`keepawake.js`, data URIs from NoSleep.js, MIT) also plays; started on the Start/deep-link tap (needs a gesture), paused on home/done, restarted on foreground.
+- **Foreground recovery** (single `visibilitychange` handler): re-request wake lock, refresh `--vh` (stale after unlock → misplaced footer), resume the AudioContext if not `running` (iOS parks it in `interrupted` after a lock, which is why sounds used to die), restart the keep-awake video mid-workout.
+- **No flash on launch**: iOS shows a white launch screen for PWAs, so the whole boot chain stays white — inline `html{background:#fff}` in index.html, white body default in styles.css, white initial theme-color. `setScene` recolors everything once a screen renders. Don't reintroduce a dark pre-render default.
 - **Viewport**: app height is driven by `--vh` set from `window.innerHeight` (listeners on resize/visualViewport/orientation + settle timers). This works around a known iOS standalone-PWA bug where CSS percentage chains and fixed shells pin to a stale small viewport. Don't replace it with `100vh`/`100dvh`/`position: fixed` shells — that's the bug it fixes.
 - **Scroll**: html/body are `overflow: hidden` + `overscroll-behavior: none` (kills the iOS rubber-band); `#app` scrolls internally only if content overflows.
 
@@ -59,7 +62,8 @@ Rules:
 
 - Type: Helvetica Neue, weight 800/900, uppercase display, tight tracking; tabular numerals for timers.
 - Block colors (in `BLOCKS`): warmup `#0033e6`, legs `#e30613`, core `#ffc800` (black ink), upper `#0a0a0a`, stretch `#00764a`. Screens are full-bleed block color; `--bg`/`--fg` drive everything, so the arrows, buttons, and overlays recolor automatically.
-- States: solid digits = work, translucent (35%) = rest, inverted colors = paused. (Outlined text was tried and abandoned — `-webkit-text-stroke` renders Helvetica/Inter's overlapping glyph contours badly.)
+- States: solid digits = work, translucent (35%) = rest, inverted timer box = paused. (Outlined text was tried and abandoned — `-webkit-text-stroke` renders Helvetica/Inter's overlapping glyph contours badly.)
+- Buttons: full-width actions are 56px pills (radius 28px) — same vertical size as the back/next circles.
 - Red appears only where it means something: Legs block, End workout.
 
 ## Common modifications

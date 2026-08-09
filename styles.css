@@ -14,7 +14,9 @@ body {
   overflow: hidden;
   overscroll-behavior: none;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  background: #0a0a0a;
+  /* White, matching the home screen and the iOS PWA launch screen — a dark
+     default here flashes black between first paint and the JS render. */
+  background: #ffffff;
   color: #0a0a0a;
   -webkit-font-smoothing: antialiased;
   touch-action: manipulation;
@@ -163,13 +165,51 @@ body {
 /* Rep counts in the timer slot: same treatment, sized to fit the wider string. */
 .digits.reps { font-size: clamp(56px, 20vw, 110px); }
 
+/* Paused: the timer box inverts, full bleed — the rest of the screen
+   (description, trains) stays readable. */
+.timerbox.boxpaused {
+  background: var(--fg, #0a0a0a);
+  color: var(--bg, #fff);
+  width: auto; /* width:100% + border-box would leave a gap on the right */
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.hintrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 6px;
+  min-height: 28px;
+}
+
 .hint {
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  margin-top: 6px;
 }
+
+/* Small dedicated skip control — everything else on screen pauses. */
+.skipbtn {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: none;
+  border: 2px solid currentColor;
+  border-radius: 14px;
+  color: inherit;
+  padding: 4px 14px;
+  cursor: pointer;
+  flex: none;
+}
+
+.skipbtn:active { opacity: 0.4; }
 
 .hint.pulse { animation: pulse 1.5s ease-in-out infinite; }
 
@@ -189,9 +229,10 @@ body {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   width: 100%;
-  min-height: 66px;
+  min-height: 56px; /* matches the back/next circles */
   margin-top: 22px;
   border: none;
+  border-radius: 28px;
   cursor: pointer;
   background: var(--fg, #0a0a0a);
   color: var(--bg, #fff);
@@ -252,16 +293,29 @@ body {
 }
 
 .blocks li {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 0;
   border-bottom: 1.5px solid #0a0a0a;
   font-size: 21px;
   font-weight: 800;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
+
+/* Each row is a button that deep-links into its block. */
+.blockrow {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.blockrow:active { opacity: 0.4; }
 
 .blocks li:first-child { border-top: 3px solid #0a0a0a; }
 
@@ -311,12 +365,6 @@ body {
   cursor: pointer;
 }
 
-/* Pause: the screen's colors, inverted. */
-.overlay.pause-overlay {
-  background: var(--fg, #0a0a0a);
-  color: var(--bg, #fff);
-}
-
 /* End-workout modal: always ink. */
 .overlay.quit-modal {
   background: #0a0a0a;
@@ -333,8 +381,6 @@ body {
   margin: 26px 0 0;
   text-wrap: balance;
 }
-
-.overlay .digits { margin-top: 18px; }
 
 .action.danger { background: #e30613; color: #fff; }
 .action.light { background: #fff; color: #0a0a0a; }
