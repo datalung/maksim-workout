@@ -166,8 +166,7 @@
     // Back from the lock screen / background: iOS may report a stale
     // viewport height and park the audio context — refresh both, and
     // restart the keep-awake video if a workout is running.
-    setViewportVar();
-    setTimeout(setViewportVar, 250);
+    refreshViewport();
     if (audioCtx && audioCtx.state !== 'running') audioCtx.resume();
     if (keepAwakeVideo && state.mode === 'exercise') {
       keepAwakeVideo.play().catch(() => {});
@@ -669,18 +668,43 @@
   }
 
   // ---------- viewport height (iOS standalone workaround) ----------
-  // In home-screen mode iOS may report a stale small viewport to CSS on
-  // first load; window.innerHeight + resize listeners track the truth.
+  // In home-screen mode iOS may report a stale, too-small innerHeight on
+  // first load and after unlock — the screen compresses upward (footer
+  // buttons float high) and the body color peeks out below overlays.
 
   function setViewportVar() {
-    document.documentElement.style.setProperty('--vh', window.innerHeight + 'px');
+    let h = window.innerHeight;
+    // Truth floor: a standalone portrait PWA covers the entire screen
+    // (viewport-fit=cover), so the real height is exactly screen.height —
+    // iOS's screen dimensions never rotate, so only apply it in portrait.
+    const standalone = navigator.standalone === true ||
+      window.matchMedia('(display-mode: standalone)').matches;
+    if (standalone && window.matchMedia('(orientation: portrait)').matches) {
+      h = Math.max(h, window.screen.height);
+    }
+    document.documentElement.style.setProperty('--vh', h + 'px');
   }
-  setViewportVar();
+
+  // Refresh now and over the next few seconds — iOS settles on the real
+  // height (and sometimes un-shifts a scrolled page) well after the
+  // launch/unlock/rotation moment that triggered us.
+  let settleTimers = [];
+  function refreshViewport() {
+    for (const t of settleTimers) clearTimeout(t);
+    const fix = () => {
+      window.scrollTo(0, 0); // iOS can leave the page offset after unlock
+      setViewportVar();
+    };
+    fix();
+    settleTimers = [100, 300, 600, 1000, 2000, 3000].map((ms) => setTimeout(fix, ms));
+  }
+
+  refreshViewport();
   window.addEventListener('resize', setViewportVar);
   if (window.visualViewport) window.visualViewport.addEventListener('resize', setViewportVar);
-  window.addEventListener('orientationchange', () => setTimeout(setViewportVar, 250));
-  setTimeout(setViewportVar, 300);  // catch the post-launch settle
-  setTimeout(setViewportVar, 1000);
+  window.addEventListener('orientationchange', refreshViewport);
+  window.addEventListener('pageshow', refreshViewport);
+  window.addEventListener('focus', refreshViewport);
 
   // ---------- boot ----------
 
@@ -725,7 +749,11 @@
     try {
       WORKOUTS = await loadWorkouts();
     } catch (err) {
-      renderLoadError(String((err && err.message) || err));
+      // Browsers block fetch() on file:// pages, so the workout files can
+      // never load from a double-clicked index.html — needs a server.
+      renderLoadError(location.protocol === 'file:'
+        ? 'Workout files can’t be fetched from a file:// page. Serve the app instead: python3 -m http.server 8823, then open http://localhost:8823.'
+        : String((err && err.message) || err));
       return;
     }
     // Land on the last-used workout; the picker is one tap up from home.
