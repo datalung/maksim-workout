@@ -148,13 +148,13 @@ Face down, arms straight ahead, thumbs up, chest slightly lifted. Sweep both arm
 
 ## Stretch #00764a
 
-### Lying hamstring stretch
-scheme: 50 sec per leg · with band
+### Crossed-ankle forward fold
+scheme: 50 sec per side
 rest: 20
-segments: 50 · Left leg, 50 · Right leg
-trains: Hamstrings
+segments: 50 · Left foot in front, 50 · Right foot in front
+trains: Hamstrings, IT band
 
-On your back, band around the sole of one foot, leg straight up. Gently pull the leg toward you until the back of the thigh clearly stretches. Breathe slowly — it deepens on the exhale.
+Stand with one foot crossed over the other, both legs straight. Hinge forward and hang — arms and head heavy, no pulling. The stretch lands in the back leg's outer hamstring. Come up slowly, then switch the cross.
 
 ### Seated forward fold
 scheme: 40 sec per leg
