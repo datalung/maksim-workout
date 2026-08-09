@@ -44,16 +44,21 @@
   // immune to JS interval jitter and first-sound wake-up latency.
   let scheduledNodes = [];
 
-  function beepAt(freq, dur, atTime, vol = 0.4, cancellable = false) {
+  // opts.glideTo: pitch slides up to this frequency over the note (jump-style).
+  // opts.ring: attack then decay across the whole duration (coin-style tail)
+  // instead of holding steady and cutting off.
+  function beepAt(freq, dur, atTime, vol = 0.4, cancellable = false, opts = {}) {
     if (!audioCtx) return;
     const t = Math.max(atTime, audioCtx.currentTime + 0.005);
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
+    osc.type = 'square'; // NES pulse-wave voice
+    osc.frequency.setValueAtTime(freq, t);
+    if (opts.glideTo) osc.frequency.exponentialRampToValueAtTime(opts.glideTo, t + dur);
+    const v = vol * 0.5; // square carries far more energy than the old sine
     gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.linearRampToValueAtTime(vol, t + 0.01);
-    gain.gain.setValueAtTime(vol, t + dur - 0.03);
+    gain.gain.linearRampToValueAtTime(v, t + 0.01);
+    if (!opts.ring) gain.gain.setValueAtTime(v, t + dur - 0.03);
     gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     osc.connect(gain).connect(audioCtx.destination);
     osc.start(t);
@@ -74,28 +79,70 @@
     scheduledNodes = [];
   }
 
-  const beep = (freq, dur, when = 0, vol = 0.4) => {
-    if (audioCtx) beepAt(freq, dur, audioCtx.currentTime + when, vol);
+  const beep = (freq, dur, when = 0, vol = 0.4, opts = {}) => {
+    if (audioCtx) beepAt(freq, dur, audioCtx.currentTime + when, vol, false, opts);
   };
 
-  const cueStart = () => beep(880, 0.18);
-  const cueFinish = () => { beep(880, 0.12); beep(880, 0.12, 0.18); beep(1470, 0.4, 0.36); };
-  const cuePage = () => { beep(988, 0.08); beep(1319, 0.12, 0.1); }; // quick rising pair on page change
-  const cueGo = () => { beep(660, 0.12); beep(880, 0.35, 0.16); }; // rest over — go
+  // Chiptune vocabulary, one wink per cue: page = the coin (B5→E6 with a
+  // ringing tail), start = a jump-style upward glide, finish = a rising
+  // major-arpeggio fanfare, go keeps its two-note "rest over" fourth.
+  const cueStart = () => beep(660, 0.18, 0, 0.4, { glideTo: 990 });
+  const cueFinish = () => {
+    beep(1047, 0.09); beep(1319, 0.09, 0.09); beep(1568, 0.09, 0.18);
+    beep(2093, 0.5, 0.27, 0.4, { ring: true });
+  };
+  const cuePage = () => { beep(988, 0.08); beep(1319, 0.4, 0.08, 0.4, { ring: true }); };
+  const cueGo = () => { beep(660, 0.12); beep(880, 0.35, 0.16, 0.4, { ring: true }); }; // rest over — go
   const cuePause = () => beep(440, 0.1, 0, 0.2); // single soft low blip
 
   // End-of-countdown cues, pre-scheduled on the audio clock (cancellable).
   const END_CUES = {
-    start: (t) => beepAt(880, 0.18, t, 0.4, true),
-    go: (t) => { beepAt(660, 0.12, t, 0.4, true); beepAt(880, 0.35, t + 0.16, 0.4, true); },
-    finish: (t) => { beepAt(880, 0.12, t, 0.4, true); beepAt(880, 0.12, t + 0.18, 0.4, true); beepAt(1470, 0.4, t + 0.36, 0.4, true); },
+    start: (t) => beepAt(660, 0.18, t, 0.4, true, { glideTo: 990 }),
+    go: (t) => { beepAt(660, 0.12, t, 0.4, true); beepAt(880, 0.35, t + 0.16, 0.4, true, { ring: true }); },
+    finish: (t) => {
+      beepAt(1047, 0.09, t, 0.4, true); beepAt(1319, 0.09, t + 0.09, 0.4, true);
+      beepAt(1568, 0.09, t + 0.18, 0.4, true); beepAt(2093, 0.5, t + 0.27, 0.4, true, { ring: true });
+    },
   };
 
-  // Schedule 3-2-1 ticks and the end cue for a countdown with `remaining`
-  // seconds left, exactly on the beat.
+  // Faint metronome tick: a short filtered noise burst, nothing tonal.
+  let tickBuf = null;
+
+  function tickAt(atTime, vol) {
+    if (!audioCtx) return;
+    if (!tickBuf) {
+      const n = Math.round(audioCtx.sampleRate * 0.006);
+      tickBuf = audioCtx.createBuffer(1, n, audioCtx.sampleRate);
+      const d = tickBuf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 2;
+    }
+    const t = Math.max(atTime, audioCtx.currentTime + 0.005);
+    const src = audioCtx.createBufferSource();
+    src.buffer = tickBuf;
+    const hp = audioCtx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.value = 4000;
+    const g = audioCtx.createGain();
+    g.gain.value = vol;
+    src.connect(hp).connect(g).connect(audioCtx.destination);
+    src.start(t);
+    scheduledNodes.push(src);
+    src.onended = () => {
+      const i = scheduledNodes.indexOf(src);
+      if (i >= 0) scheduledNodes.splice(i, 1);
+    };
+  }
+
+  // Schedule the per-second ticks, 3-2-1 notes and the end cue for a
+  // countdown with `remaining` seconds left, exactly on the beat.
   function scheduleCountdownBeeps(remaining, endCue) {
     if (!audioCtx) return;
     const end = audioCtx.currentTime + remaining;
+    // Subtle tick each second (stronger every 10th), handing over to the
+    // melodic 3-2-1 for the last stretch.
+    for (let s = 4; s <= Math.floor(remaining - 0.05); s++) {
+      tickAt(end - s, s % 10 === 0 ? 0.18 : 0.07);
+    }
     for (const s of [3, 2, 1]) {
       if (remaining > s + 0.05) beepAt(1320, 0.08, end - s, 0.3, true);
     }
