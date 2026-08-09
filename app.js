@@ -92,6 +92,7 @@
     beep(2093, 0.5, 0.27, 0.4, { ring: true });
   };
   const cuePage = () => { beep(988, 0.08); beep(1319, 0.4, 0.08, 0.4, { ring: true }); };
+  const cueTick = () => { if (audioCtx) tickAt(audioCtx.currentTime, 0.18); }; // menu navigation: just a click
   const cueGo = () => { beep(660, 0.12); beep(880, 0.35, 0.16, 0.4, { ring: true }); }; // rest over — go
   const cuePause = () => beep(440, 0.1, 0, 0.2); // single soft low blip
 
@@ -334,7 +335,7 @@
     $app.querySelectorAll('.blockrow[data-id]').forEach((btn) => {
       btn.addEventListener('click', () => {
         ensureAudio();
-        cuePage();
+        cueTick();
         setWorkout(WORKOUTS.find((w) => w.id === btn.dataset.id));
         renderHome();
       });
@@ -367,7 +368,7 @@
 
     document.getElementById('pick').addEventListener('click', () => {
       ensureAudio();
-      cuePage();
+      cueTick();
       renderPicker();
     });
 
@@ -656,7 +657,7 @@
       <button class="action light" id="m-stay">Keep going</button>`);
     ov.addEventListener('click', (e) => e.stopPropagation());
     ov.querySelector('#m-end').addEventListener('click', () => {
-      cuePage();
+      cueTick();
       renderHome();
     });
     ov.querySelector('#m-stay').addEventListener('click', () => {
