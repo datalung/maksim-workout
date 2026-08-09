@@ -275,6 +275,22 @@ body {
 
 .nextbtn:active, .backbtn:active { opacity: 0.25; }
 
+/* Bar-level text button (home → picker). Same voice as the eyebrow. */
+.barbtn {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.barbtn:active { opacity: 0.4; }
+
 /* ---------- home ---------- */
 
 .home-title {
@@ -325,6 +341,30 @@ body {
   border-radius: 50%;
   flex: none;
   background: var(--chip);
+}
+
+/* ---------- picker ---------- */
+
+.wname { flex: 1; }
+
+/* A workout's block colors, as a compact overlapping cluster. */
+.chipset {
+  display: flex;
+  flex: none;
+}
+
+.chipset .chip {
+  width: 15px;
+  height: 15px;
+  border: 2px solid #fff;
+  box-sizing: content-box;
+}
+
+.chipset .chip + .chip { margin-left: -6px; }
+
+.blockrow[disabled] {
+  opacity: 0.35;
+  cursor: default;
 }
 
 /* ---------- done ---------- */

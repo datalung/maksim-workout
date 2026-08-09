@@ -1,12 +1,12 @@
 // Network-first with cache fallback: always fresh online, still works offline.
 
-const CACHE = 'maksim-v21';
+const CACHE = 'maksim-v22';
 const ASSETS = [
   '/',
   '/index.html',
   '/styles.css',
   '/app.js',
-  '/workout.js',
+  '/parse.js',
   '/keepawake.js',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
@@ -14,7 +14,15 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
+  e.waitUntil(caches.open(CACHE).then(async (c) => {
+    await c.addAll(ASSETS);
+    // Workout files are discovered from the manifest, so adding a workout
+    // never needs an edit here — just bump CACHE as usual.
+    try {
+      const files = await (await fetch('/workouts/index.json')).json();
+      await c.addAll(['/workouts/index.json', ...files.map((f) => `/workouts/${f}`)]);
+    } catch (_) { /* offline install: runtime caching picks them up later */ }
+  }));
   self.skipWaiting();
 });
 

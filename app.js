@@ -1,11 +1,24 @@
-// Maksim — workout walkthrough. State machine: home → (rest → exercise)* → done.
+// Maksim — workout walkthrough. State machine:
+// picker → home → (rest → exercise)* → done.
+// Workouts are markdown files in workouts/ (see docs/workout-format.md),
+// listed in workouts/index.json, fetched and parsed at boot by parse.js.
 
 (() => {
   const $app = document.getElementById('app');
-  const TOTAL = EXERCISES.length;
+  const LAST_KEY = 'workout:last';
+
+  let WORKOUTS = []; // parsed workouts (or {id, file, error}) in index.json order
+  let W = null;      // current workout
+  let TOTAL = 0;     // exercise count of the current workout
+
+  function setWorkout(w) {
+    W = w;
+    TOTAL = w.exercises.length;
+    try { localStorage.setItem(LAST_KEY, w.id); } catch (_) { /* private mode */ }
+  }
 
   const state = {
-    mode: 'home', // home | exercise | rest | done
+    mode: 'picker', // picker | home | exercise | rest | done
     idx: 0,
     segIdx: 0,
     startedAt: null,
@@ -245,13 +258,50 @@
     $app.style.setProperty('--fg', fg);
   }
 
+  // Top level: pick a workout. Each row shows the workout's block colors.
+  function renderPicker() {
+    stopActiveTimer();
+    stopKeepAwake();
+    state.mode = 'picker';
+    setScene('#ffffff', '#0a0a0a');
+
+    const rows = WORKOUTS.map((w) => w.error
+      ? `<li><button class="blockrow" disabled>
+          <span class="wname">${esc(w.file)} &middot; parse error</span>
+        </button></li>`
+      : `<li><button class="blockrow" data-id="${esc(w.id)}">
+          <span class="wname">${esc(w.name)}</span>
+          <span class="chipset">${Object.values(w.blocks).map((b) =>
+            `<span class="chip" style="--chip:${b.color}"></span>`).join('')}</span>
+        </button></li>`).join('');
+
+    $app.innerHTML = `
+      <section class="screen">
+        <header class="bar">
+          <span class="eyebrow">Maksim</span>
+        </header>
+        <h1 class="home-title">Work<br>outs</h1>
+        <ul class="blocks">${rows}</ul>
+        <div class="push"></div>
+      </section>`;
+
+    $app.querySelectorAll('.blockrow[data-id]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        ensureAudio();
+        cuePage();
+        setWorkout(WORKOUTS.find((w) => w.id === btn.dataset.id));
+        renderHome();
+      });
+    });
+  }
+
   function renderHome() {
     stopActiveTimer();
     stopKeepAwake();
     state.mode = 'home';
     setScene('#ffffff', '#0a0a0a');
 
-    const rows = Object.entries(BLOCKS).map(([key, b]) => `
+    const rows = Object.entries(W.blocks).map(([key, b]) => `
       <li><button class="blockrow" data-block="${key}">
         <span class="chip" style="--chip:${b.color}"></span>${esc(b.name)}
       </button></li>`).join('');
@@ -259,15 +309,21 @@
     $app.innerHTML = `
       <section class="screen">
         <header class="bar">
-          <span class="eyebrow">Maksim &middot; Full body</span>
+          <button class="barbtn" id="pick">&larr; Workouts</button>
           <span class="spacer"></span>
           <span class="progress">${TOTAL} exercises</span>
         </header>
-        <h1 class="home-title">Work<br>out</h1>
+        <h1 class="home-title">${esc(W.name)}</h1>
         <ul class="blocks">${rows}</ul>
         <div class="push"></div>
         <button class="action" id="start">Start workout</button>
       </section>`;
+
+    document.getElementById('pick').addEventListener('click', () => {
+      ensureAudio();
+      cuePage();
+      renderPicker();
+    });
 
     document.getElementById('start').addEventListener('click', () => {
       ensureAudio();
@@ -280,7 +336,7 @@
     // Each block row deep-links to the first exercise of that block.
     $app.querySelectorAll('.blockrow').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const first = EXERCISES.findIndex((ex) => ex.block === btn.dataset.block);
+        const first = W.exercises.findIndex((ex) => ex.block === btn.dataset.block);
         if (first < 0) return;
         ensureAudio();
         startKeepAwake();
@@ -297,8 +353,8 @@
     stopActiveTimer();
     state.mode = 'exercise';
     state.segIdx = 0;
-    const ex = EXERCISES[state.idx];
-    const block = BLOCKS[ex.block];
+    const ex = W.exercises[state.idx];
+    const block = W.blocks[ex.block];
     setScene(block.color, block.ink);
 
     const timed = !!ex.segments;
@@ -323,8 +379,8 @@
         <h1 class="title">${esc(ex.name)}</h1>
         <div class="scheme">${esc(ex.scheme)}</div>
         ${timerHtml}
-        <p class="desc">${esc(ex.description)}</p>
-        <p class="trains">${esc(ex.trains)}</p>
+        ${ex.description ? `<p class="desc">${esc(ex.description)}</p>` : ''}
+        ${ex.trains ? `<p class="trains">${esc(ex.trains)}</p>` : ''}
         <div class="push"></div>
         <div class="footrow">
           ${state.idx > 0
@@ -547,7 +603,7 @@
     const wasRunning = activeTimer && activeTimer.isRunning();
     if (wasRunning) activeTimer.pause();
     const ov = addOverlay('quit-modal', `
-      <header class="bar"><span class="eyebrow">Maksim</span></header>
+      <header class="bar"><span class="eyebrow">${esc(W.name)}</span></header>
       <h2 class="overlay-mega">End the<br>workout?</h2>
       <div class="push"></div>
       <button class="action danger" id="m-end">End workout</button>
@@ -573,7 +629,7 @@
     }
     if (!alreadyCued) cuePage();
     state.idx += 1;
-    renderExercise(EXERCISES[state.idx].restBefore);
+    renderExercise(W.exercises[state.idx].restBefore);
   }
 
   function goBack() {
@@ -595,7 +651,7 @@
     $app.innerHTML = `
       <section class="screen">
         <header class="bar">
-          <span class="eyebrow">Maksim &middot; Full body</span>
+          <span class="eyebrow">${esc(W.name)}</span>
           <span class="spacer"></span>
           <span class="progress">${pad(TOTAL)}/${pad(TOTAL)}</span>
         </header>
@@ -632,5 +688,58 @@
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
-  renderHome();
+  // Fetch the manifest, then every workout file, and parse. A file that
+  // fails to parse becomes an {error} entry — shown disabled in the picker
+  // so one broken file never bricks the app.
+  async function loadWorkouts() {
+    const res = await fetch('workouts/index.json');
+    if (!res.ok) throw new Error(`workouts/index.json: HTTP ${res.status}`);
+    const files = await res.json();
+    return Promise.all(files.map(async (file) => {
+      const id = file.replace(/\.md$/, '');
+      try {
+        const r = await fetch(`workouts/${file}`);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return parseWorkout(await r.text(), id);
+      } catch (err) {
+        console.warn(`workouts/${file}:`, err);
+        return { id, file, error: String((err && err.message) || err) };
+      }
+    }));
+  }
+
+  function renderLoadError(message) {
+    setScene('#ffffff', '#0a0a0a');
+    $app.innerHTML = `
+      <section class="screen">
+        <header class="bar"><span class="eyebrow">Maksim</span></header>
+        <h1 class="home-title">Can't<br>load</h1>
+        <p class="desc">${esc(message)}</p>
+        <div class="push"></div>
+        <button class="action" id="retry">Try again</button>
+      </section>`;
+    document.getElementById('retry').addEventListener('click', boot);
+  }
+
+  async function boot() {
+    try {
+      WORKOUTS = await loadWorkouts();
+    } catch (err) {
+      renderLoadError(String((err && err.message) || err));
+      return;
+    }
+    // Land on the last-used workout; the picker is one tap up from home.
+    let last = null;
+    try { last = localStorage.getItem(LAST_KEY); } catch (_) { /* private mode */ }
+    const ok = WORKOUTS.filter((w) => !w.error);
+    const w = ok.find((x) => x.id === last) || (ok.length === 1 ? ok[0] : null);
+    if (w) {
+      setWorkout(w);
+      renderHome();
+    } else {
+      renderPicker();
+    }
+  }
+
+  boot();
 })();
