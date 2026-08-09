@@ -289,6 +289,13 @@ body {
   cursor: pointer;
 }
 
+.barbtn svg {
+  width: 14px;
+  height: 14px;
+  vertical-align: -3px;
+  margin-right: 4px;
+}
+
 .barbtn:active { opacity: 0.4; }
 
 /* ---------- home ---------- */

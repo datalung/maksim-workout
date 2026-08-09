@@ -277,7 +277,7 @@
     $app.innerHTML = `
       <section class="screen">
         <header class="bar">
-          <span class="eyebrow">Maksim</span>
+          <span class="eyebrow">&nbsp;</span>
         </header>
         <h1 class="home-title">Work<br>outs</h1>
         <ul class="blocks">${rows}</ul>
@@ -308,7 +308,7 @@
     $app.innerHTML = `
       <section class="screen">
         <header class="bar">
-          <button class="barbtn" id="pick">&larr; Workouts</button>
+          <button class="barbtn" id="pick" aria-label="Back to workouts">${arrowSvg(true)} Workouts</button>
           <span class="spacer"></span>
           <span class="progress">${TOTAL} exercises</span>
         </header>
@@ -736,7 +736,7 @@
     setScene('#ffffff', '#0a0a0a');
     $app.innerHTML = `
       <section class="screen">
-        <header class="bar"><span class="eyebrow">Maksim</span></header>
+        <header class="bar"><span class="eyebrow">&nbsp;</span></header>
         <h1 class="home-title">Can't<br>load</h1>
         <p class="desc">${esc(message)}</p>
         <div class="push"></div>
