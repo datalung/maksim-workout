@@ -463,7 +463,7 @@
     });
   }
 
-  const SWITCH_SECONDS = 5; // lead-in between sides/sets to change position
+  const SWITCH_SECONDS = 10; // lead-in between sides/sets to change position
 
   // Runs one exercise screen: optional rest, then timed segments (auto-
   // advancing to the next exercise) or a wait for rep work. Returns the
