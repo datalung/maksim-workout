@@ -156,13 +156,13 @@ trains: Hamstrings, IT band
 
 Stand with one foot crossed over the other, both legs straight. Hinge forward and hang — arms and head heavy, no pulling. The stretch lands in the back leg's outer hamstring. Come up slowly, then switch the cross.
 
-### Seated forward fold
-scheme: 40 sec per leg
+### Figure-4 glute stretch
+scheme: 40 sec per side
 rest: 10
-segments: 40 · Left leg, 40 · Right leg
-trains: Hamstrings
+segments: 40 · Left ankle up, 40 · Right ankle up
+trains: Glutes, piriformis
 
-One leg straight, the other foot against its inner thigh. Hinge forward from the hips with a long back — chest toward the toes, no rounding — and hold where the hamstring stretches.
+On your back, knees bent. Cross one ankle over the opposite knee, then pull that thigh gently toward your chest until the outside of the crossed leg's hip stretches. Keep the back flat on the floor and the head down.
 
 ### Kneeling hip flexor stretch
 scheme: 45 sec per side

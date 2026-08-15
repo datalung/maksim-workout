@@ -1,6 +1,6 @@
 // Network-first with cache fallback: always fresh online, still works offline.
 
-const CACHE = 'maksim-v29';
+const CACHE = 'maksim-v30';
 const ASSETS = [
   '/',
   '/index.html',
