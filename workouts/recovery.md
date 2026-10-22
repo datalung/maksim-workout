@@ -73,15 +73,23 @@ trains: Lower back, rear delts
 
 Face down, fully stretched, arms straight ahead holding the band spread under tension. Lift arms, chest and legs off the floor and hold. Band stays taut.
 
+### Band external rotations
+scheme: 1 × 15 per side · band in door at belly height
+reps: 1 × 15
+rest: 30
+trains: Rotator cuff, rear shoulder
+
+Stand sideways to the door and hold the band in the hand farther from it. Elbow bent at a right angle, pillow squeezed between elbow and side. Rotate the forearm from the door outward, like a gate opening — the elbow stays pinned. Return slowly. One light set per side today. Shut the band in the door so the door opens away from you.
+
 ## Stretch #00764a
 
-### Kneeling hip flexor stretch
+### Couch stretch
 scheme: 60 sec per side
-rest: 10
-segments: 60 · Left side, 60 · Right side
-trains: Hip flexors, psoas
+rest: 15
+segments: 60 · Left knee down, 60 · Right knee down
+trains: Quads, hip flexors
 
-Kneel on one knee (cushion under it), other foot planted ahead. Tuck the pelvis under first, then shift gently forward until the front of the rear hip stretches. Squeeze the rear glute. Longer hold than usual — this is the most shortened muscle after a long ride.
+Kneel facing away from the couch, cushion under the knee. Slide one knee back into the corner where floor meets couch, shin up against the front of the couch. Plant the other foot ahead. Tuck the pelvis under, squeeze the glute of the back leg, then bring the torso slowly upright — the front of that thigh lights up. Too much: keep hands on the front knee and lean forward. Longer hold than usual — the front of the hips is the most shortened muscle after a long ride.
 
 ### Crossed-ankle forward fold
 scheme: 60 sec per side

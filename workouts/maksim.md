@@ -52,15 +52,15 @@ reps: 2 × 15
 rest: 45
 trains: Glutes, hamstrings
 
-On your back, knees bent. Lift one foot and extend that leg. Drive through the planted heel until shoulders–hips–knee form a line. Squeeze at the top, lower with control.
+On your back, knees bent. Lift one foot and extend that leg. Plant the working heel a little further from your hips than feels natural — that shifts more of the work into the hamstrings. Drive through the heel until shoulders–hips–knee form a line, squeeze at the top, lower with control.
 
-### Single-leg Romanian deadlifts
-scheme: 2 × 10 per side
-reps: 2 × 10
+### Quadruped hip extensions with band
+scheme: 2 × 15 per side
+reps: 2 × 15
 rest: 45
-trains: Hamstrings, glutes, balance
+trains: Glutes, lower back
 
-Stand on one leg, soft knee, kettlebell in the opposite hand. Hinge at the hip — push the hips back, free leg extends behind you — until the standing hamstring stretches. Back flat. Squeeze the glute to stand up.
+On all fours, band looped around the sole of one foot, ends pinned under your hands. Push that leg straight back against the band until it's horizontal — no higher, and don't let the lower back arch or the hips tilt. Lower with control. All reps one side, then switch.
 
 ### Side-lying leg raises
 scheme: 20 per side · band at ankles
@@ -69,6 +69,14 @@ rest: 30
 trains: Outer hip, glute medius
 
 Band around both ankles. Lie on your side, body straight, legs stacked. Lift the top leg straight up against the band, toes pointing forward, lower with control.
+
+### Side-lying inner-thigh lifts
+scheme: 20 per side
+reps: 1 × 20
+rest: 30
+trains: Inner thigh, adductors
+
+Lie on your side, head on your lower arm. Fold the top leg forward and plant its foot on the floor in front of the bottom knee. Keep the bottom leg straight and lift it a few centimeters off the floor, hold briefly, lower slowly. All reps one side, then turn over.
 
 ### Squats
 scheme: 1 × 20
@@ -112,6 +120,14 @@ trains: Obliques, rotation
 
 Seated, knees bent, feet light or lifted, torso leaned back 45°. Kettlebell at your chest — rotate it to one hip, then all the way to the other. Twist from the waist, not the arms.
 
+### Standing band rotations
+scheme: 2 × 12 per side · band in door at shoulder height
+reps: 2 × 12
+rest: 30
+trains: Obliques, rotation, trunk stability
+
+Stand sideways to the door, feet shoulder-width, knees soft. Hold the band with both hands, arms straight out in front of your chest. Rotate the whole upper body away from the door — arms stay straight and in front of the chest, hips stay mostly square. Return slowly against the pull. All reps one side, then turn around.
+
 ## Upper body #0a0a0a
 
 ### Knee pushups on fists
@@ -146,6 +162,14 @@ trains: Rear delts, traps, mobility
 
 Face down, arms straight ahead, thumbs up, chest slightly lifted. Sweep both arms in a wide symmetrical arc from overhead down to your hips and back — a slow breaststroke, arms never touching the floor.
 
+### Band external rotations
+scheme: 2 × 15 per side · band in door at belly height
+reps: 2 × 15
+rest: 30
+trains: Rotator cuff, rear shoulder
+
+Stand sideways to the door and hold the band in the hand farther from it. Elbow bent at a right angle, pillow squeezed between elbow and side. Rotate the forearm from the door outward, like a gate opening — the elbow stays pinned. Return slowly. Light band: this muscle is small and the slow way back matters most. All reps one side, then turn around.
+
 ## Stretch #00764a
 
 ### Crossed-ankle forward fold
@@ -164,13 +188,13 @@ trains: Glutes, piriformis
 
 On your back, knees bent. Cross one ankle over the opposite knee, then pull that thigh gently toward your chest until the outside of the crossed leg's hip stretches. Keep the back flat on the floor and the head down.
 
-### Kneeling hip flexor stretch
+### Couch stretch
 scheme: 45 sec per side
-rest: 10
-segments: 45 · Left side, 45 · Right side
-trains: Hip flexors, psoas
+rest: 15
+segments: 45 · Left knee down, 45 · Right knee down
+trains: Quads, hip flexors
 
-Kneel on one knee (cushion under it), other foot planted ahead. Tuck the pelvis under first, then shift gently forward until the front of the rear hip stretches. Squeeze the rear glute. Counters the hours of hip flexion on the bike.
+Kneel facing away from the couch, cushion under the knee. Slide one knee back into the corner where floor meets couch, shin up against the front of the couch. Plant the other foot ahead. Tuck the pelvis under, squeeze the glute of the back leg, then bring the torso slowly upright — the front of that thigh lights up. Too much: keep hands on the front knee and lean forward. Counters the hours of hip flexion on the bike.
 
 ### Downward dog
 scheme: 45 sec

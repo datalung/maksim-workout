@@ -133,13 +133,13 @@ trains: Chest, front shoulders
 
 Stand tall, clasp your hands behind your back, straighten the arms and lift them gently away from your body while opening the chest and squeezing the shoulder blades. In a doorway: forearms on the frame, step through instead.
 
-### Kneeling hip flexor stretch
+### Couch stretch
 scheme: 45 sec per side
-rest: 10
-segments: 45 · Left side, 45 · Right side
-trains: Hip flexors, psoas
+rest: 15
+segments: 45 · Left knee down, 45 · Right knee down
+trains: Quads, hip flexors
 
-Kneel on one knee (cushion under it), other foot planted ahead. Tuck the pelvis under first, then shift gently forward until the front of the rear hip stretches. Squeeze the rear glute. Counters the hours of hip flexion on the bike.
+Kneel facing away from the couch, cushion under the knee. Slide one knee back into the corner where floor meets couch, shin up against the front of the couch. Plant the other foot ahead. Tuck the pelvis under, squeeze the glute of the back leg, then bring the torso slowly upright — the front of that thigh lights up. Too much: keep hands on the front knee and lean forward. Counters the hours of hip flexion on the bike.
 
 ### Downward dog
 scheme: 45 sec
