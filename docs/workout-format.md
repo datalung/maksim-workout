@@ -20,7 +20,7 @@ Under each exercise heading:
 | Key | Required | Meaning |
 |---|---|---|
 | `scheme:` | yes | The bold line under the title — what to do, in your words: `2 × 15 per side`, `45 sec`, `1 × 20 · 4 kg kettlebell`. Free text, not parsed. |
-| `segments:` | one of these two | Makes it a **timed exercise**. Comma-separated work intervals in seconds (see below). The app runs them automatically with a 5-second switch countdown between them, then advances. |
+| `segments:` | one of these two | Makes it a **timed exercise**. Comma-separated work intervals in seconds (see below). The app runs them automatically with a 10-second switch countdown between them (skipped for intervals marked `+`, see below), then advances. |
 | `reps:` | one of these two | Makes it a **rep exercise**. Shown big in the timer slot (e.g. `2 × 15`). After the rest, the app waits — you tap the screen when done. |
 | `rest:` | no | Seconds of rest shown on this exercise's screen **before** the work starts. Defaults to `0` (no rest, straight in). |
 | `trains:` | no | Small-caps line under the description — what it works: `Quads, glutes, balance`. |
@@ -37,6 +37,7 @@ Comma-separated list. Each item is a number of seconds, optionally followed by `
 | `segments: 45, 45` | Two 45-second intervals, auto-labelled *Set 1*, *Set 2*. |
 | `segments: 30 · Left leg, 30 · Right leg` | Two intervals with your labels. |
 | `segments: 30 · Set 1 · left, 30 · Set 1 · right, 30 · Set 2 · left, 30 · Set 2 · right` | Four labelled intervals — everything after the first `·` is the label, so labels may themselves contain `·`. |
+| `segments: 60 · Left · Stage 1, +60 · Left · Stage 2, 60 · Right · Stage 1, +60 · Right · Stage 2` | A leading `+` runs that interval straight on from the previous one — no switch countdown, just a start beep. Use it for stages held in the same position. |
 
 The label is shown above the countdown while that interval runs.
 

@@ -94,7 +94,7 @@ Kneel facing away from the couch, cushion under the knee. Slide one knee back in
 ### Banded hamstring stretch
 scheme: 3 × 60 sec per side, deeper each stage
 rest: 20
-segments: 60 · Left leg · Stage 1, 60 · Left leg · Stage 2, 60 · Left leg · Stage 3, 60 · Right leg · Stage 1, 60 · Right leg · Stage 2, 60 · Right leg · Stage 3
+segments: 60 · Left leg · Stage 1, +60 · Left leg · Stage 2, +60 · Left leg · Stage 3, 60 · Right leg · Stage 1, +60 · Right leg · Stage 2, +60 · Right leg · Stage 3
 trains: Hamstrings, calves
 
 Lie on your back, one leg flat on the floor. Loop the band under the toes of the other foot and raise that leg vertical, holding the band with both hands. Stage 1: gentle pull, knee soft. Stage 2: straighten the knee fully and pull a little closer. Stage 3: pull further toward you and draw the toes down toward your face. Keep the bottom leg flat and the hips on the floor the whole time.

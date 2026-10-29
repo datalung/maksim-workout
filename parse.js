@@ -16,9 +16,10 @@ function parseSegments(value, where) {
   const items = value.split(',').map((s) => s.trim()).filter(Boolean);
   if (!items.length) throw new Error(`${where}: empty segments list`);
   const segs = items.map((item) => {
-    const m = item.match(/^(\d+)(?:\s*·\s*(.+))?$/);
+    const m = item.match(/^(\+)?\s*(\d+)(?:\s*·\s*(.+))?$/);
     if (!m) throw new Error(`${where}: bad segment "${item}" — expected "SECONDS" or "SECONDS · LABEL"`);
-    return { seconds: parseInt(m[1], 10), label: (m[2] || '').trim() };
+    // Leading "+": runs straight on from the previous segment, no switch countdown.
+    return { seconds: parseInt(m[2], 10), label: (m[3] || '').trim(), continues: !!m[1] };
   });
   // Bare numbers: a single interval stays unlabelled, multiples become Set 1..N.
   if (segs.length > 1 && segs.every((s) => !s.label)) {

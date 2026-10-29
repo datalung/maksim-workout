@@ -513,6 +513,7 @@
 
     function loadSegment(autoStart) {
       const seg = ex.segments[state.segIdx];
+      const next = ex.segments[state.segIdx + 1];
       phase = 'work';
       $label.textContent = segLabel();
       $digits.textContent = fmt(seg.seconds);
@@ -524,15 +525,16 @@
         onSecond: (s) => { $digits.textContent = fmt(s); },
         onDone: () => {
           activeTimer = null;
-          if (state.segIdx + 1 < ex.segments.length) {
+          if (next) {
             state.segIdx += 1;
-            startTransition();
+            if (next.continues) loadSegment(true); // straight on, the start beep marks it
+            else startTransition();
           } else {
             goNext(true); // the scheduled finish fanfare is the page cue
           }
         },
         onState,
-      }, 'finish');
+      }, next && next.continues ? 'start' : 'finish');
       if (autoStart) activeTimer.start();
     }
 

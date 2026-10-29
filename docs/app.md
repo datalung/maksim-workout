@@ -42,7 +42,8 @@ The authoring format is documented in `docs/workout-format.md`. Parsed shape (wh
     restBefore: 30,         // from rest:; 0 when omitted
     segments: [             // timed exercises only
       { label: 'Set 1 · left', seconds: 30 },
-      // segments auto-chain with a 5s "switch" countdown between them
+      // segments auto-chain with a 10s "switch" countdown between them,
+      // except continues: true (leading "+" in the file) — straight on
     ],
     description: '…',       // the prose paragraphs, joined
     trains: 'Obliques, …',  // small caps line under the description (optional)
@@ -81,7 +82,7 @@ Rules:
 
 - **Change a program**: edit its file in `workouts/` (format: `docs/workout-format.md`), bump `CACHE` in `sw.js`, push. No other file needs touching.
 - **Add a workout**: create `workouts/<id>.md`, add `"<id>.md"` to `workouts/index.json`, bump `CACHE`, push. The picker, offline caching, and landing logic pick it up automatically.
-- **Change durations**: `rest:` per exercise; segment seconds; the switch lead-in is `SWITCH_SECONDS` in app.js (5s); the initial ready countdown is the `renderExercise(5)` call in the start handler.
+- **Change durations**: `rest:` per exercise; segment seconds; the switch lead-in is `SWITCH_SECONDS` in app.js (10s); the initial ready countdown is the `renderExercise(5)` call in the start handler.
 - **Change sounds**: the `cue*` functions and `END_CUES` in app.js (frequency, duration, volume).
 - **Change colors**: the `##` heading hex in the workout file — ink (black/white text) follows automatically from brightness.
 - **New screen or interaction**: follow the pattern — a `render*()` function building `innerHTML`, whole-screen tap handler returning from `setupTimers`, `stopPropagation` on buttons.
