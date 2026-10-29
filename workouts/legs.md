@@ -90,13 +90,13 @@ Feet shoulder-width, toes slightly out. Sit back and down, heels planted, chest 
 
 ## Stretch #00764a
 
-### Crossed-ankle forward fold
-scheme: 50 sec per side
+### Banded hamstring stretch
+scheme: 3 × 60 sec per side, deeper each stage
 rest: 20
-segments: 50 · Left foot in front, 50 · Right foot in front
-trains: Hamstrings, IT band
+segments: 60 · Left leg · Stage 1, 60 · Left leg · Stage 2, 60 · Left leg · Stage 3, 60 · Right leg · Stage 1, 60 · Right leg · Stage 2, 60 · Right leg · Stage 3
+trains: Hamstrings, calves
 
-Stand with one foot crossed over the other, both legs straight. Hinge forward and hang — arms and head heavy, no pulling. The stretch lands in the back leg's outer hamstring. Come up slowly, then switch the cross.
+Lie on your back, one leg flat on the floor. Loop the band under the toes of the other foot and raise that leg vertical, holding the band with both hands. Stage 1: gentle pull, knee soft. Stage 2: straighten the knee fully and pull a little closer. Stage 3: pull further toward you and draw the toes down toward your face. Keep the bottom leg flat and the hips on the floor the whole time.
 
 ### Figure-4 glute stretch
 scheme: 40 sec per side
@@ -113,3 +113,11 @@ segments: 45 · Left knee down, 45 · Right knee down
 trains: Quads, hip flexors
 
 Kneel facing away from the couch, cushion under the knee. Slide one knee back into the corner where floor meets couch, shin up against the front of the couch. Plant the other foot ahead. Tuck the pelvis under, squeeze the glute of the back leg, then bring the torso slowly upright — the front of that thigh lights up. Too much: keep hands on the front knee and lean forward. Counters the hours of hip flexion on the bike.
+
+### Single-leg downward dog
+scheme: 60 sec per side
+rest: 10
+segments: 60 · Left heel down, 60 · Right heel down
+trains: Calves, Achilles, hamstrings
+
+Hips up and back into an upside-down V. Hook one foot behind the other ankle so all the weight sits on one leg, then press that heel slowly toward the floor and hold. Knee straight, long back. Switch feet.
