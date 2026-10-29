@@ -83,14 +83,6 @@ Stand sideways to the door and hold the band in the hand farther from it. Elbow 
 
 ## Stretch #00764a
 
-### Couch stretch
-scheme: 60 sec per side
-rest: 15
-segments: 60 · Left knee down, 60 · Right knee down
-trains: Quads, hip flexors
-
-Kneel facing away from the couch, cushion under the knee. Slide one knee back into the corner where floor meets couch, shin up against the front of the couch. Plant the other foot ahead. Tuck the pelvis under, squeeze the glute of the back leg, then bring the torso slowly upright — the front of that thigh lights up. Too much: keep hands on the front knee and lean forward. Longer hold than usual — the front of the hips is the most shortened muscle after a long ride.
-
 ### Banded hamstring stretch
 scheme: 3 × 60 sec per side, deeper each stage
 rest: 20

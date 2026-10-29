@@ -106,14 +106,6 @@ trains: Glutes, piriformis
 
 On your back, knees bent. Cross one ankle over the opposite knee, then pull that thigh gently toward your chest until the outside of the crossed leg's hip stretches. Keep the back flat on the floor and the head down.
 
-### Couch stretch
-scheme: 45 sec per side
-rest: 15
-segments: 45 · Left knee down, 45 · Right knee down
-trains: Quads, hip flexors
-
-Kneel facing away from the couch, cushion under the knee. Slide one knee back into the corner where floor meets couch, shin up against the front of the couch. Plant the other foot ahead. Tuck the pelvis under, squeeze the glute of the back leg, then bring the torso slowly upright — the front of that thigh lights up. Too much: keep hands on the front knee and lean forward. Counters the hours of hip flexion on the bike.
-
 ### Single-leg downward dog
 scheme: 60 sec per side
 rest: 10

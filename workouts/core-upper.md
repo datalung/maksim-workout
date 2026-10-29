@@ -141,14 +141,6 @@ trains: Hamstrings, calves
 
 Lie on your back, one leg flat on the floor. Loop the band under the toes of the other foot and raise that leg vertical, holding the band with both hands. Stage 1: gentle pull, knee soft. Stage 2: straighten the knee fully and pull a little closer. Stage 3: pull further toward you and draw the toes down toward your face. Keep the bottom leg flat and the hips on the floor the whole time.
 
-### Couch stretch
-scheme: 45 sec per side
-rest: 15
-segments: 45 · Left knee down, 45 · Right knee down
-trains: Quads, hip flexors
-
-Kneel facing away from the couch, cushion under the knee. Slide one knee back into the corner where floor meets couch, shin up against the front of the couch. Plant the other foot ahead. Tuck the pelvis under, squeeze the glute of the back leg, then bring the torso slowly upright — the front of that thigh lights up. Too much: keep hands on the front knee and lean forward. Counters the hours of hip flexion on the bike.
-
 ### Single-leg downward dog
 scheme: 60 sec per side
 rest: 10
